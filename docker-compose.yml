@@ -8,10 +8,10 @@ services:   # déclaration of services
       - 80:80
     volumes:
       - type: bind          #mount/sharing of api 
-        source: ./api
+        source: ./api/app
         target: /var/www/html
       - type: bind          #sharing server configuration
-        source: ./apache2/apache2.conf
+        source: ./api/apache2/apache2.conf
         target: /etc/apache2/apache2.conf
     env_file:   #access to environment sql variables 
       - ./sql/.env
