@@ -1,8 +1,9 @@
 <?php
 
-    require './controllers/get.php';
+    require_once './controllers/categoryController.php';
 
-
+    $category = new CategoryController();
+    $category->showCategories();
     // class Routeur{
     //     static public $routes = [
     //         //direct function assignment
