@@ -1,8 +1,8 @@
 <?php
 //controller
-
-    require_once './database/connection.php';
-    require_once './managers/categoryManager.php';
+    // namespace Controllers\CategoryController;
+    require_once './Database/Connection.php';
+    require_once './Managers/CategoryManager.php';
 
     class CategoryController{
 
@@ -17,21 +17,36 @@
         $this->categoryManager = new CategoryManager($this->connection);
     }
 
-    public function showCategories(){
-        $result = $this->categoryManager->getList();
+    public function showCategories($orderBy){
+        $result = $this->categoryManager->getList($orderBy);
         if($result){
             foreach($result as $category){
 
-                $reponse[] = [
+                $response[] = [
                     'id' => $category->getId(),  
                     'name' => $category->getName(),
                 ];
             }
-            //JSON_UNESCAPED_UNICODE : option to display correct words without unicode
-            http_response_code(200);
-            echo json_encode(["Categories" => $reponse], JSON_UNESCAPED_UNICODE);
+            return ["Categories" => $response];
         }else{
-            echo json_encode(["message" => "Erreur dans la requête SQL : Aucune catégorie"]);
+            return ["message" => "Erreur dans la requête SQL : Aucune catégorie"];
+        }
+    }
+
+    public function showCategory($id){
+        
+        $id = (int) $id;
+        $result = $this->categoryManager->get($id);
+        if($result){
+            $response[] = [
+                'id' => $result->getId(),  
+                'name' => $result->getName(),
+            ];
+            
+            return ["Categories" => $response];
+        }else{
+            
+            return ["message" => "Erreur dans la requête SQL : Aucune catégorie"];
         }
     }
 
@@ -52,15 +67,7 @@
 
 }
 
-//     //required headers
-    //acces for all sites and devices
-    header("Access-Control-Allow-Origin: *");
-    //format of data sending
-    header("Content-Type: application/json; charset=UTF-8");
-    //method GET for read
-    header("Access-Control-Allow-Methods: GET");
-    //cache this information for a specified time = request time life : 1hour
-    header("Access-Control-Max-Age: 3600");
+//    
 
 //     // if($_SERVER["REQUEST_METHOD"] == "GET"){
 

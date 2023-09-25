@@ -1,6 +1,6 @@
 <?php 
 //manager = DAO - Data Access Object
-    require_once './entities/categoryModel.php';
+    require_once './Entities/CategoryModel.php';
 
     class CategoryManager {
         private $_connection; //PDO instance
@@ -25,9 +25,9 @@
             $id = (int) $id; //ensure is INT
             //c.id = ? LIMIT 0,1 : where condition return first ligne found 
             $sql = "SELECT c.id, c.name
-                    FROM category AS c WHERE deleted = 0 AND c.id = ? LIMIT 0,1";
+                    FROM category AS c WHERE deleted = 0 AND c.id = ? LIMIT 0,1"; // 
             $sth = $this->_connection->prepare($sql);
-            $sth->bindParam('1', $id, PDO::PARAM_INT);
+            $sth->bindParam(1, $id, PDO::PARAM_INT);
             $sth->execute();
             $data = $sth->fetch(PDO::FETCH_ASSOC); 
             $result = new Category($data);
@@ -36,7 +36,7 @@
 
         public function getList($orderBy = "id"){
             //check if $orderBy exist in column category
-            if($orderBy != "id" || $orderBy != "name"){$orderBy = "id";}
+            if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";}
             $result = [];
             $sql = "SELECT c.id, c.name
                     FROM category AS c WHERE deleted = 0 ORDER BY " . $orderBy . " ASC";

@@ -1,47 +1,45 @@
 <?php
 
-    require_once './controllers/categoryController.php';
+    require_once './Router/Router.php';
+    // use Router\Router;
 
-    $category = new CategoryController();
-    $category->showCategories();
-    // class Routeur{
-    //     static public $routes = [
-    //         //direct function assignment
-    //         'GET:/' => 'getAllRoutes',
-    //         'GET:/read/category' => 'readCategory',
-    //     ];
-    // }
+    $route = new Router();
+
+    $route->addRoute('GET','/', ['all','getAllRoutes'], []);
+    $route->addRoute('GET','/category', ['category','showCategories'], []);
+    $route->addRoute('GET','/categoryOrderName', ['category','showCategories'], ['name']);
+    $route->addRoute('GET','/category/{id}', ['category','showCategory'], ['id']);
+    $route->addRoute('GET','/category/{name}', ['category','showCategory'], ['name']); 
+
+    //required headers
+    header("Access-Control-Allow-Origin: *"); //acces for all sites and devices
+    header("Content-Type: application/json; charset=UTF-8"); //format of data sending
+    header("Access-Control-Allow-Methods: GET,POST,PUT,DELETE"); //method GET for read
+    header("Access-Control-Max-Age: 3600"); //cache this information for a specified time = request time life : 1hour
     
+    $response = $route->match();
+// var_dump($response);
+    if(isset($response[0])){
+        if($response[0] === 'Router'){
+            $allRoutes = $route->getAllRoutes();
+            echo json_encode(["Routes" => $allRoutes], JSON_UNESCAPED_UNICODE);
+        }else if(file_exists('./Controllers/'.$response[0].'.php')){
+            require_once './Controllers/'.$response[0].'.php'; //include file controller
+            //create instance of class
+            $class = $response[0]; 
+            $controller = new $class();
+            //get function
+            $function = $response[1];
+            //get argument
+            $arg = $response[2][0];
+            $reply = $controller->$function($arg);
 
-    // function getAllRoutes(){
-    //     $listRoutes = [];
-    //     foreach(Routeur::$routes as $key => $value){
-    //         $listRoutes[] = $key;
-    //     }
-    //     echo json_encode($listRoutes);
-    // }
-        
-    // function router($url, $method){
-    //     foreach(Routeur::$routes as $pattern => $handler){
-            
-    //         $fullUrl = $method.":".$url;
-    //         $pattern = str_replace("{id}", "(\d+)", $pattern); //remplace par chiffre
-    //         $pattern = str_replace("{name}", "([a-zA-Z]+)", $pattern); //remplace par nom
-    //         $pattern = str_replace("/", "\/", $pattern);
-    //         if(preg_match("/^" . $pattern . "$/", $fullUrl, $matches)){
-    //             // var_dump(Routeur::$routes);
-    //             array_shift($matches);
-    //             call_user_func($handler, $matches);
-    //             return ;
-    //         } else{
-    //             header('HTTP/1.0 404 Not Found'); //TODO : modifier
-    //         }
-    //     }
-        
-    // }
-
-    // $request_url = $_SERVER['REQUEST_URI']; //url avec nom de domaine juste / si que nom de domaine
-    // $method = $_SERVER['REQUEST_METHOD']; //
-    // router($request_url, $method);
-
+            //JSON_UNESCAPED_UNICODE : option to display correct words without unicode
+            http_response_code(200);
+            echo json_encode($reply, JSON_UNESCAPED_UNICODE);
+        }
+    }else{
+        http_response_code(404);
+        echo json_encode($response);
+    }
 ?>
