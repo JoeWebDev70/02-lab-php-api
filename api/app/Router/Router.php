@@ -17,8 +17,8 @@
 
 
         //method
-        public function addRoute($method, $pattern, $handler, $arg = []){
-            $this->routes[] = [$method, $pattern, $handler, $arg];
+        public function addRoute($method, $pattern, $handler, $routeRegex, $arg = []){
+            $this->routes[] = [$method, $pattern, $handler, $routeRegex, $arg];
         }
 
         public function match(){
@@ -26,18 +26,20 @@
             $method = $_SERVER['REQUEST_METHOD'];
 
             foreach($this->routes as $route){
-
                 //Assign variables as if they were an array
-                list($routeMethod, $routePattern, $routeHandler, $routeArgs) = $route;
+                list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs) = $route;
                 
-                // var_dump($routePattern);
-                $routePattern = str_replace("{id}", "(\d+)", $routePattern); //replaceby number
-                $routePattern = str_replace("{name}", "([a-zA-Z]+)", $routePattern); //replace by name
+                $regex = explode(":", $routeRegex);//explode to get what and regex to set
+                
+                if(sizeof($regex) > 1){
+                    $routePattern = str_replace("{".$regex[0]."}", $regex[1], $routePattern);
+                }
                 $routePattern = str_replace("/", "\/", $routePattern); //replace spaces
-                
-                if ($method === $routeMethod && preg_match("#^$routePattern$#", $url, $matches)){ //check method
+                //check method and url pattern -- urldecode for spaces and specials char
+                if ($method === $routeMethod && preg_match("#^$routePattern$#", urldecode($url), $matches)){ 
 
                     array_shift($matches);
+
                     if(sizeof($matches) > 0){ //pass arguments for functions
                         $arg = $matches;
                     }else{
@@ -52,7 +54,7 @@
                     return [$controller, $routeHandler[1], $arg];
                 }
             }
-            //not fount route
+            //not found route
             return false;
         }
                 
@@ -60,7 +62,7 @@
             $listRoutes = [];
             foreach($this->routes as $route){
                 //Assign variables as if they were an array
-                list($routeMethod, $routePattern, $routeHandler, $routeArgs) = $route;
+                list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs) = $route;
                 $listRoutes[] = ["methode" => $routeMethod, "url" => $routePattern, "arguments" => $routeArgs];
             }
             return $listRoutes;

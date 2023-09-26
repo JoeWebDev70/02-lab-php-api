@@ -21,33 +21,55 @@
             }
         }
 
-        public function get($id){
-            $id = (int) $id; //ensure is INT
-            //c.id = ? LIMIT 0,1 : where condition return first ligne found 
-            $sql = "SELECT c.id, c.name
-                    FROM category AS c WHERE deleted = 0 AND c.id = ? LIMIT 0,1"; // 
-            $sth = $this->_connection->prepare($sql);
-            $sth->bindParam(1, $id, PDO::PARAM_INT);
-            $sth->execute();
-            $data = $sth->fetch(PDO::FETCH_ASSOC); 
-            $result = new Category($data);
-            return $result;
-        }
-
-        public function getList($orderBy = "id"){
-            //check if $orderBy exist in column category
-            if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";}
-            $result = [];
+        public function getList($orderBy){ //display all categories
             $sql = "SELECT c.id, c.name
                     FROM category AS c WHERE deleted = 0 ORDER BY " . $orderBy . " ASC";
             $sth = $this->_connection->prepare($sql);
             $sth->execute();
-            
+            $data = $sth->fetch(PDO::FETCH_ASSOC);
+
             while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
                 $result[] = new Category($data);
             }; 
+            
+            if(sizeof($result) <= 0){ $result = false;} //check if contain some data
+
             return $result;
         }
+
+        public function getById($id){
+            //c.id = ? LIMIT 0,1 : where condition return first ligne found 
+            $sql = "SELECT c.id, c.name
+                    FROM category AS c WHERE deleted = 0 AND c.id = ? LIMIT 0,1";  
+            $sth = $this->_connection->prepare($sql);
+            $sth->bindParam(1, $id, PDO::PARAM_INT);
+            $sth->execute();
+            $data = $sth->fetch(PDO::FETCH_ASSOC); 
+            if($data){ //check if contain some data
+                $result = new Category($data);
+            }else{
+                $result = false;
+            }
+            
+            return $result;
+        }
+
+        public function getByName($name){
+            $sql = "SELECT c.id, c.name
+                    FROM category AS c WHERE deleted = 0 AND c.name = :name"; 
+            $sth = $this->_connection->prepare($sql);
+            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+            $sth->execute();
+            $data = $sth->fetch(PDO::FETCH_ASSOC); 
+            if($data){ //check if contain some data
+                $result = new Category($data);
+            }else{
+                $result = false;
+            }
+            
+            return $result;
+        }
+
 
         //update
         public function update(Category $category){

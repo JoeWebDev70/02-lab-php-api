@@ -13,15 +13,15 @@
     // constructor
     public function __construct(){
         $this->setConnection();
-        // create new instance of classe
-        $this->categoryManager = new CategoryManager($this->connection);
+        $this->categoryManager = new CategoryManager($this->connection); // create new instance of classe
     }
 
-    public function showCategories($orderBy){
+    public function showCategories($orderBy = "id"){ //show all categories 
+        $orderBy = strval($orderBy); //ensure is string
+        if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
         $result = $this->categoryManager->getList($orderBy);
-        if($result){
+        if($result){ //formating response
             foreach($result as $category){
-
                 $response[] = [
                     'id' => $category->getId(),  
                     'name' => $category->getName(),
@@ -33,30 +33,40 @@
         }
     }
 
-    public function showCategory($id){
-        
-        $id = (int) $id;
-        $result = $this->categoryManager->get($id);
-        if($result){
+    public function showCategoryById($id){ //show a category by id 
+        $id = (int) $id; //ensure is INT
+        $result = $this->categoryManager->getById($id);
+        if($result){ //formating data
             $response[] = [
                 'id' => $result->getId(),  
                 'name' => $result->getName(),
             ];
-            
             return ["Categories" => $response];
         }else{
-            
             return ["message" => "Erreur dans la requête SQL : Aucune catégorie"];
         }
     }
 
+    public function showCategoryByName($name){ //show a category by name 
+        $name = strval($name);  //ensure is string
+        $result = $this->categoryManager->getByName($name);
+        if($result){ //formatting data
+            $response[] = [
+                'id' => $result->getId(),  
+                'name' => $result->getName(),
+            ];
+            return ["Categories" => $response];
+        }else{
+            return ["message" => "Erreur dans la requête SQL : Aucune catégorie"];
+        }
+    }
 
     
                 //TODO: mettre à la reception des données ds le controlleur
                     //injection protection
                     //strip_tags : delete HTML and PHP tag from string
                     //htmlspecialchars : convert special characters into HTML entities
-                    // htmlspecialchars(strip_tags())
+                    // htmlspecialchars())
 
 
     public function setConnection(){
