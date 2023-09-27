@@ -61,6 +61,10 @@
                     "name"
                 ]
             },
+    
+    - Les catégories sont uniques et ne peuvent être supprimées si elles sont associées à des technologies;
+    - Les technologies sont unique par catégorie;
+
 
 ## Routes
 

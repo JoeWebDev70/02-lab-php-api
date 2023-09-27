@@ -61,6 +61,7 @@
             }
             
         }
+        
 //TODO : compléter après création des classes nécessaires
         // public function getLists($orderBy){ //display all categories and its technologies
         //     $sql = "SELECT c.id, c.name, GROUP_CONCAT(t.id SEPARATOR ', '), GROUP_CONCAT(t.name SEPARATOR ', ')  

@@ -18,15 +18,15 @@
             if($logo == ""){$logo = null;} //pass null for not creating void
             $categoryId = $technology->getCategoryId();
             
-            //check if technology exist with this category and it was not deleted
+            //check if technology exist with this category 
             $sql = "SELECT * FROM technology AS t 
-                    WHERE t.name = :name AND t.category_id = :categoryId AND deleted= 0"; 
+                    WHERE t.name = :name AND t.category_id = :categoryId"; 
             $sth = $this->connection->prepare($sql);
             $sth->bindParam(':name', $name, PDO::PARAM_STR);
             $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_ASSOC); 
-            if(!$result){ //doesn't exist with this category then insert in db
+            if(!$result){ //doesn't exist yet with this category then insert in db
                 $sql = "INSERT INTO technology(name, logo, category_id) VALUES(:name, :logo, :categoryId)";
                 $sth = $this->connection->prepare($sql);
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
@@ -34,6 +34,17 @@
                 $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
                 if($sth->execute()){ 
                     return [true, 'Succès : Technology créée', 201];
+                }else{
+                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                }
+            }else if ($result["deleted"] == 1){ // exist but it was deleted before then update
+                $sql = "UPDATE technology AS t SET t.deleted = 0 
+                        WHERE t.name = :name AND t.category_id = :categoryId";
+                $sth = $this->connection->prepare($sql);
+                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+                if($sth->execute()){
+                    return [true, 'Succès : Catégorie créée', 201];
                 }else{
                     return [false, "Erreur : Dans l'execution de la requête", 400];
                 }
@@ -54,7 +65,6 @@
             while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
                 if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
                 $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
-
                 $result[] = [new Technology($dataTechnology), $data["category_name"]]; 
             }; 
 
@@ -66,36 +76,44 @@
             
         }
 
-    //     public function getById($id){
-    //         //c.id = ? LIMIT 0,1 : where condition return first ligne found 
-    //         $sql = "SELECT c.id, c.name
-    //                 FROM technology AS c WHERE c.deleted = 0 AND c.id = ? LIMIT 0,1";  
-    //         $sth = $this->connection->prepare($sql);
-    //         $sth->bindParam(1, $id, PDO::PARAM_INT);
-    //         $sth->execute();
-    //         $data = $sth->fetch(PDO::FETCH_ASSOC); 
-    //         if($data){ //check if contain some data
-    //             $result = new Category($data);
-    //             return [true, $result, 200];
-    //         }else{
-    //             return [false, "Erreur : Aucune catégorie existante", 404];
-    //         }    
-    //     }
+        public function getById($id){
+            //c.id = ? LIMIT 0,1 : where condition return first ligne found 
+            $sql = "SELECT t.id, t.name, t.logo, t.category_id, c.name AS 'category_name'
+                    FROM (technology AS t 
+                    LEFT JOIN category AS c ON c.id = t.category_id ) 
+                    WHERE t.deleted = 0 AND t.id = ? LIMIT 0,1";  
+            $sth = $this->connection->prepare($sql);
+            $sth->bindParam(1, $id, PDO::PARAM_INT);
+            $sth->execute();
+            $data = $sth->fetch(PDO::FETCH_ASSOC); 
+            if($data){ //check if contain some data
+                if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
+                $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
+                $result[] = [new Technology($dataTechnology), $data["category_name"]]; 
+                return [true, $result, 200];
+            }else{
+                return [false, "Erreur : Aucune catégorie existante", 404];
+            }    
+        }
 
-    //     public function getByName($name){
-    //         $sql = "SELECT c.id, c.name
-    //                 FROM technology AS c WHERE c.deleted = 0 AND c.name = :name"; 
-    //         $sth = $this->connection->prepare($sql);
-    //         $sth->bindParam(':name', $name, PDO::PARAM_STR);
-    //         $sth->execute();
-    //         $data = $sth->fetch(PDO::FETCH_ASSOC); 
-    //         if($data){ //check if contain some data
-    //             $result = new Category($data);
-    //             return [true, $result, 200];
-    //         }else{
-    //             return [false, "Erreur : Aucune catégorie existante", 404];
-    //         }
-    //     }
+        public function getByName($name){
+            $sql = "SELECT t.id, t.name, t.logo, t.category_id, c.name AS 'category_name'
+                    FROM (technology AS t 
+                    LEFT JOIN category AS c ON c.id = t.category_id ) 
+                    WHERE t.deleted = 0 AND t.name = :name";  
+            $sth = $this->connection->prepare($sql);
+            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+            $sth->execute();
+            $data = $sth->fetch(PDO::FETCH_ASSOC); 
+            if($data){ //check if contain some data
+                if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
+                $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
+                $result[] = [new Technology($dataTechnology), $data["category_name"]]; 
+                return [true, $result, 200];
+            }else{
+                return [false, "Erreur : Aucune catégorie existante", 404];
+            }    
+        }
 
 
     //     //update
@@ -113,7 +131,6 @@
     //     }
 
        
-    //     //TODO : add select if contains technology -->> change first
     //     //delete = pass false/1 in column deleted
     //     public function deleteById($id, Category $technology){
     //         //check if it was deleted before

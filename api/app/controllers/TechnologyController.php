@@ -79,41 +79,49 @@
                         'categoryName' => $result[1][$i][1],
                     ];
                 }
-             
+                return ["Technologies" => $response, "http" => $result[2]];
+            }else{
+                return ["message" => $result[1], "http" => $result[2]];
+            }
+        }
+      
+        public function showTechnologyById($id){ 
+            $id = (int) $id; //ensure is INT
+            $result = $this->technologyManager->getById($id);
+            if($result[0]){ //formating response
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $response[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'name' => $result[1][$i][0]->getName(),
+                        'logo' => $result[1][$i][0]->getLogo(),
+                        'categoryId' => $result[1][$i][0]->getCategoryId(),
+                        'categoryName' => $result[1][$i][1],
+                    ];
+                }
                 return ["Technologies" => $response, "http" => $result[2]];
             }else{
                 return ["message" => $result[1], "http" => $result[2]];
             }
         }
 
-      
-        // public function showCategoryById($id){ 
-        //     $id = (int) $id; //ensure is INT
-        //     $result = $this->categoryManager->getById($id);
-        //     if($result[0]){ //formating data
-        //         $response[] = [
-        //             'id' => $result[1]->getId(),  
-        //             'name' => $result[1]->getName(),
-        //         ];
-        //         return ["Categories" => $response];
-        //     }else{
-        //         return ["message" => $result[1]];
-        //     }
-        // }
-
-        // public function showCategoryByName($name){  
-        //     $name = strval($name);  //ensure is string
-        //     $result = $this->categoryManager->getByName($name);
-        //     if($result[0]){ //formating data
-        //         $response[] = [
-        //             'id' => $result[1]->getId(),  
-        //             'name' => $result[1]->getName(),
-        //         ];
-        //         return ["Categories" => $response];
-        //     }else{
-        //         return ["message" => $result[1]];
-        //     }
-        // }
+        public function showTechnologyByName($name){  
+            $name = strval($name);  //ensure is string
+            $result = $this->technologyManager->getByName($name);
+            if($result[0]){ //formating response
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $response[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'name' => $result[1][$i][0]->getName(),
+                        'logo' => $result[1][$i][0]->getLogo(),
+                        'categoryId' => $result[1][$i][0]->getCategoryId(),
+                        'categoryName' => $result[1][$i][1],
+                    ];
+                }
+                return ["Technologies" => $response, "http" => $result[2]];
+            }else{
+                return ["message" => $result[1], "http" => $result[2]];
+            }
+        }
 
         // public function updateCategoryById($id, $data){ 
         //     $id = htmlspecialchars(strip_tags((int) $id));
@@ -128,18 +136,7 @@
         //     return ["message" => $result[1]];
         // }
 
-        // public function updateCategoryByName($name, $data){ 
-        //     $name = htmlspecialchars(strip_tags($name));
-        //     $data = explode("=", strval($data)); //ensure is string and explode data to create Category
-        //     $newName = htmlspecialchars(strip_tags($data[1]));
-        //     $categoryData = [
-        //         'name' => $newName,
-        //     ];
-        //     //create an instance of category
-        //     $category = new Category($categoryData);
-        //     $result = $this->categoryManager->updateByName($name, $category);
-        //     return ["message" => $result[1]];
-        // }
+        
 
         // public function deleteCategoryById($id, $data){ 
         //     $id = htmlspecialchars(strip_tags((int) $id));
@@ -152,17 +149,7 @@
         //     return ["message" => $result[1]];
         // }
 
-        // public function deleteCategoryByName($name, $data){ 
-        //     $name = htmlspecialchars(strip_tags(strval($name)));
-        //     $categoryData = [
-        //         'name' => $name,
-        //         'deleted' => true,
-        //     ];
-        //     //create an instance of category
-        //     $category = new Category($categoryData);
-        //     $result = $this->categoryManager->deleteByName($name, $category);
-        //     return ["message" => $result[1]];
-        // }
+        
 
         public function setConnection(){
             $this->db = Database::getInstance();

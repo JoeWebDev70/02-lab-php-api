@@ -130,7 +130,7 @@
             $result = $this->categoryManager->updateByName($name, $category);
             return ["message" => $result[1]];
         }
-
+//TODO : list of technologies 
         public function deleteCategoryById($id, $data){ 
             $id = htmlspecialchars(strip_tags((int) $id));
             $categoryData = [

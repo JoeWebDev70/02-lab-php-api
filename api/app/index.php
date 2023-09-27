@@ -17,6 +17,8 @@
     $route->addRoute('GET','/category/{name}', ['category','showCategoryByName'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']); 
     $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id']);
     $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name']);
+    $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyById'], 'id:(\d+)', ['id']);
+    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyByName'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']);
 
     //POST
     $route->addRoute('POST','/category', ['category','addCategory'], '', ['?name=name']);
