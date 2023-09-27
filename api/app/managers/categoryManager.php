@@ -5,94 +5,178 @@
     class CategoryManager {
         private $_connection; //PDO instance
 
-        //constructor
+        //constructor for db connection
         public function __construct($connection){
             $this->setConnection($connection);
         }
 
-        public function add(Category $category){
-            $sql = "INSERT INTO category(name) VALUES(:name)";
+        //add
+        public function add(Category $category){ //add new category
+            $name = $category->getName(); //get data to create category
+//TODO reactiver si existante mais deleted = 1
+            //check if exist yet
+            $sql = "SELECT * FROM category WHERE name=:name";
             $sth = $this->_connection->prepare($sql);
-            $sth->bindParam(':name', $category->getName(), PDO::PARAM_STR);
-            if($sth->execute()){
-                return true;
+            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+            $sth->execute();
+            $result = $sth->fetch(PDO::FETCH_ASSOC);
+
+            if(!$result){ //category doesn't exist yet
+                $sql = "INSERT INTO category(name) VALUES(:name)";
+                $sth = $this->_connection->prepare($sql);
+                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                if($sth->execute()){ 
+                    return [true, 'Succès : Catégorie créée', 201];
+                }else{
+                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                }
             }else{
-                return false;
+                return [false, 'Erreur : Catégorie déjà existante', 403];
             }
         }
 
+        //get
         public function getList($orderBy){ //display all categories
             $sql = "SELECT c.id, c.name
-                    FROM category AS c WHERE deleted = 0 ORDER BY " . $orderBy . " ASC";
+                    FROM category AS c WHERE c.deleted = 0 ORDER BY " . $orderBy . " ASC";
             $sth = $this->_connection->prepare($sql);
             $sth->execute();
-            $data = $sth->fetch(PDO::FETCH_ASSOC);
-
             while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
                 $result[] = new Category($data);
             }; 
             
-            if(sizeof($result) <= 0){ $result = false;} //check if contain some data
-
-            return $result;
+            if(sizeof($result) <= 0){ 
+                return [false, "Erreur : Aucune catégorie existante", 404];
+            } //check if contain some data
+            else{
+                return [true, $result, 200];
+            }
+            
         }
+
+//         public function getLists($orderBy){ //display all categories and its technologies
+// // //TODO 
+//             // SELECT c.id, c.name, GROUP_CONCAT(t.id SEPARATOR ", "), GROUP_CONCAT(t.name SEPARATOR ", ") FROM (category AS c 
+// // LEFT JOIN technology AS t on c.id = t.category_id) GROUP BY c.id;
+//             $sql = "SELECT c.id, c.name, t.id, t.name FROM category AS c
+//                     LEFT JOIN technology AS t on c.id = t.category_id 
+//                     WHERE c.deleted = 0 AND t.deleted = 0 ORDER BY c." . $orderBy . " ASC";
+//             $sth = $this->_connection->prepare($sql);
+//             $sth->execute();
+//             while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
+//                 $result[] = new Category($data);
+//             }; 
+            
+        //     if(sizeof($result) <= 0){ $result = false;} //check if contain some data
+
+        //     return $result;
+        // }
+
 
         public function getById($id){
             //c.id = ? LIMIT 0,1 : where condition return first ligne found 
             $sql = "SELECT c.id, c.name
-                    FROM category AS c WHERE deleted = 0 AND c.id = ? LIMIT 0,1";  
+                    FROM category AS c WHERE c.deleted = 0 AND c.id = ? LIMIT 0,1";  
             $sth = $this->_connection->prepare($sql);
             $sth->bindParam(1, $id, PDO::PARAM_INT);
             $sth->execute();
             $data = $sth->fetch(PDO::FETCH_ASSOC); 
             if($data){ //check if contain some data
                 $result = new Category($data);
+                return [true, $result, 200];
             }else{
-                $result = false;
-            }
-            
-            return $result;
+                return [false, "Erreur : Aucune catégorie existante", 404];
+            }    
         }
 
         public function getByName($name){
             $sql = "SELECT c.id, c.name
-                    FROM category AS c WHERE deleted = 0 AND c.name = :name"; 
+                    FROM category AS c WHERE c.deleted = 0 AND c.name = :name"; 
             $sth = $this->_connection->prepare($sql);
             $sth->bindParam(':name', $name, PDO::PARAM_STR);
             $sth->execute();
             $data = $sth->fetch(PDO::FETCH_ASSOC); 
             if($data){ //check if contain some data
                 $result = new Category($data);
+                return [true, $result, 200];
             }else{
-                $result = false;
+                return [false, "Erreur : Aucune catégorie existante", 404];
             }
-            
-            return $result;
         }
 
 
         //update
-        public function update(Category $category){
-            $sql = "UPDATE category SET name = :name WHERE deleted = 0 AND id = :id";
+        public function updateById($id, Category $category){ //update category searched by id
+            $name = $category->getName(); //get data to update category
+            $sql = "UPDATE category AS c SET c.name=:newName WHERE c.deleted = 0 AND c.id = :id";
             $sth = $this->_connection->prepare($sql);
-            $sth->bindParam(':name', $category->getName(), PDO::PARAM_STR);
-            $sth->bindParam(':id', $category->getId(), PDO::PARAM_INT);
+            $sth->bindParam(':newName', $name, PDO::PARAM_STR);
+            $sth->bindParam(':id', $id, PDO::PARAM_INT);
             if($sth->execute()){
-                return true;
+                return [true, 'Succès : Catégorie modifiée', 204];
             }else{
-                return false;
+                return [false, "Erreur : Dans l'execution de la requête", 400];
             }
         }
 
-        //delete = pass false/1 in column deleted
-        public function delete(Category $category){
-            $sql = "UPDATE category SET deleted = 1 WHERE id = :id";
+        public function updateByName($name, Category $category){ //update category searched by name
+            $newName = $category->getName(); //get data to update category
+            $sql = "UPDATE category AS c SET c.name=:newName WHERE c.deleted = 0 AND c.name= :name";
             $sth = $this->_connection->prepare($sql);
-            $sth->bindParam(':id', $category->getId(), PDO::PARAM_INT);
+            $sth->bindParam(':newName', $newName, PDO::PARAM_STR);
+            $sth->bindParam(':name', $name, PDO::PARAM_STR);
             if($sth->execute()){
-                return true;
+                return [true, 'Succès : Catégorie modifiée', 204];
             }else{
-                return false;
+                return [false, "Erreur : Dans l'execution de la requête", 400];
+            }
+        }
+
+        //TODO : add select if contains technology -->> change first
+        //delete = pass false/1 in column deleted
+        public function deleteById($id, Category $category){
+            //check if it was deleted before
+            $sql = "SELECT c.id, c.name
+                    FROM category AS c WHERE c.deleted = 1 AND c.id = ? LIMIT 0,1";  
+            $sth = $this->_connection->prepare($sql);
+            $sth->bindParam(1, $id, PDO::PARAM_INT);
+            $sth->execute();
+            $result = $sth->fetch(PDO::FETCH_ASSOC); 
+
+            if(!$result){ //category wasn't deleted before
+                $sql = "UPDATE category AS c SET c.deleted = 1 WHERE id = :id ";
+                $sth = $this->_connection->prepare($sql);
+                $sth->bindParam(':id', $id, PDO::PARAM_INT);
+                if($sth->execute()){
+                    return [true, 'Succès : Catégorie supprimée', 204];
+                }else{
+                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                }
+            }else{
+                return [false, "Erreur : Catégorie inexistante", 404];
+            }
+        }
+
+        public function deleteByName($name, Category $category){
+            //check if it was deleted before
+            $sql = "SELECT c.id, c.name
+                    FROM category AS c WHERE c.deleted = 1 AND c.name=:name";  
+            $sth = $this->_connection->prepare($sql);
+            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+            $sth->execute();
+            $result = $sth->fetch(PDO::FETCH_ASSOC); 
+
+            if(!$result){ //category wasn't deleted before
+                $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.name=:name";
+                $sth = $this->_connection->prepare($sql);
+                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                if($sth->execute()){
+                    return [true, 'Succès : Catégorie supprimée', 204];
+                }else{
+                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                }
+            }else{
+                return [false, "Erreur : Catégorie inexistante", 404];
             }
         }
 

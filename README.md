@@ -1,5 +1,71 @@
 # 02-lab-php-api
 
+## Effectuer les requêtes
+
+### Logiciels : 
+
+    Utiliser postman ou autre outils de test d’API comme des plugings disponible sur VS Code
+
+### GET : 
+
+    Exemples d'url :
+        - Recherche toutes les routes : http://php-dev-2.online
+        - Recherches toutes une table:
+            - Ordre Id = http://php-dev-2.online/categories/
+            - Ordre nom = http://php-dev-2.online/categories/name
+        - Recherche par id = http://php-dev-2.online/category/1  
+        - Recherche par nom = http://php-dev-2.online/category/Développement front end
+            
+### POST :
+
+    Exemples d'url :
+        - http://php-dev-2.online/category?name=Développement front end
+        - http://php-dev-2.online/category?name=Développement front-end
+
+### PUT : 
+
+    Exemples d'url :
+        - http://php-dev-2.online/category/Développement front end?name=Développement front end
+        - http://php-dev-2.online/category/5?name=Développement back end
+
+### DELETE :
+
+    Exemples d'url :
+        - http://php-dev-2.online/category/5
+        - http://php-dev-2.online/category/Développement front end
+
+### Infos Diverses:
+
+    - Caractères autorisés pour les noms : a-zA-Z0-9À-ÿ -_
+
+    - Les Arguments à renseigner :
+        - entre accolade dans l'url :
+            - ex : {id}, {name}
+        - commençant par "?" (non visibles dans l'url à l'affichage des routes disponibles):
+            - ex : "?name=newName" sont à remplir par vos soin
+        Exemple : 
+            {
+                "methode": "PUT",
+                "url": "/category/{name}",
+                "arguments": [
+                    "name",
+                    "?name=newName"
+                ]
+            },
+            URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
+            
+    - Les autres Arguments ne sont pas à renseigner (ils sont fixes et servent pour la requête).
+        Exemple : 
+            {
+                "methode": "GET",
+                "url": "/categories/name",
+                "arguments": [
+                    "name"
+                ]
+            },
+
+## Routes
+
 
 
 
