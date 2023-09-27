@@ -11,13 +11,16 @@
     $route->addRoute('GET','/', ['all','getAllRoutes'], '', []);
     $route->addRoute('GET','/categories', ['category','showCategories'], '', ['id']);
     $route->addRoute('GET','/categories/name', ['category','showCategories'], '', ['name']);
-    $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id']);
-    $route->addRoute('GET','/categories/name/technologies', ['category','showCategoriesTechnologies'], '', ['name']);
+    // $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id']);
+    // $route->addRoute('GET','/categories/name/technologies', ['category','showCategoriesTechnologies'], '', ['name']);
     $route->addRoute('GET','/category/{id}', ['category','showCategoryById'], 'id:(\d+)', ['id']);
     $route->addRoute('GET','/category/{name}', ['category','showCategoryByName'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']); 
+    $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id']);
+    $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name']);
 
     //POST
     $route->addRoute('POST','/category', ['category','addCategory'], '', ['?name=name']);
+    $route->addRoute('POST','/technology', ['technology','addTechnology'], '', ['?name=name&[logo=directoryFile&]categoryId=id']);
     
     //PUT
     $route->addRoute('PUT','/category/{id}', ['category','updateCategoryById'], 'id:(\d+)', ['id', '?name=newName']);
@@ -71,6 +74,8 @@
             return "message";
         }else if(isset($reply["Categories"])){
             return "Categories";
+        }else if(isset($reply["Technologies"])){
+            return "Technologies";
         }
     }
 ?>

@@ -2,10 +2,6 @@
 
 ## Effectuer les requêtes
 
-### Logiciels : 
-
-    Utiliser postman ou autre outils de test d’API comme des plugings disponible sur VS Code
-
 ### GET : 
 
     Exemples d'url :
@@ -41,18 +37,20 @@
     - Les Arguments à renseigner :
         - entre accolade dans l'url :
             - ex : {id}, {name}
-        - commençant par "?" (non visibles dans l'url à l'affichage des routes disponibles):
-            - ex : "?name=newName" sont à remplir par vos soin
-        Exemple : 
-            {
-                "methode": "PUT",
-                "url": "/category/{name}",
-                "arguments": [
-                    "name",
-                    "?name=newName"
-                ]
-            },
-            URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
+        - commençant par "?":
+            - ex : "?name=name&[logo=directoryFile&]categoryId=id"
+                - Obligatoire :  name=newName, categoryId=id ; 
+                - Facultatif : [logo=directoryFile&]
+            Exemple : 
+                {
+                    "methode": "PUT",
+                    "url": "/category/{name}",
+                    "arguments": [
+                        "name",
+                        "?name=newName"
+                    ]
+                },
+                URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
             
     - Les autres Arguments ne sont pas à renseigner (ils sont fixes et servent pour la requête).
         Exemple : 
