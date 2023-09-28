@@ -57,56 +57,72 @@
             }
         }
 
-        //TODO
-        // public function showCategoriesTechnologies($orderBy = "id"){ //show all categories and its technologies
-        //     $orderBy = strval($orderBy); //ensure is string
-        //     if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
-        //     $result = $this->categoryManager->getLists($orderBy);
-        //     var_dump($result);
-            // if($result){ //formating response
-            //     foreach($result as $category){
-            //         $response[] = [
-            //             'id' => $category->getId(),  
-            //             'name' => $category->getName(),
-            //         ];
-            //     }
-            //     return ["Categories" => $response];
-            // }else{
-            //     return ["message" => "Erreur dans la requête"];
-            // }
-        // }
+        public function showCategoriesTechnologies($orderBy = "id"){ //show all categories with its technologies
+            $orderBy = strval($orderBy); //ensure is string
+            if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
+            $result = $this->categoryManager->getLists($orderBy);
 
+            if($result[0]){ //formating response
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $response[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'name' => $result[1][$i][0]->getName(),
+                        'technologies_id' => $result[1][$i][1],
+                        'technologies_names' => $result[1][$i][2],
+                    ];
+                }
 
-        public function showCategoryById($id){ 
-            $id = (int) $id; //ensure is INT
-            $result = $this->categoryManager->getById($id);
+                return ["Technologies par Catégorie" => $response, "http" => $result[2]];
+            }else{
+                return ["message" => $result[1], "http" => $result[2]];
+            }
+        }
+
+        public function showCategoryBy($arg){ //show category by its name or id
+            $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
+            if(is_numeric($arg)){
+                $arg = (int) $arg;
+            }
+            $result = $this->categoryManager->getBy($arg);
+            
             if($result[0]){ //formating data
                 $response[] = [
                     'id' => $result[1]->getId(),  
                     'name' => $result[1]->getName(),
                 ];
-                return ["Categories" => $response];
+                return ["Categories" => $response, "http" => $result[2]];
             }else{
-                return ["message" => $result[1]];
+                return ["message" => $result[1], "http" => $result[2]];
             }
         }
 
-        public function showCategoryByName($name){  
-            $name = strval($name);  //ensure is string
-            $result = $this->categoryManager->getByName($name);
-            if($result[0]){ //formating data
-                $response[] = [
-                    'id' => $result[1]->getId(),  
-                    'name' => $result[1]->getName(),
-                ];
-                return ["Categories" => $response];
+        public function showCategoryTechnologiesBy($arg){ //show category and its technologies
+            $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
+            if(is_numeric($arg)){
+                $arg = (int) $arg;
+            }
+            $result = $this->categoryManager->getListBy($arg); //send to manager functions
+            if($result[0]){ //formating response
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $response[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'name' => $result[1][$i][0]->getName(),
+                        'technologies_id' => $result[1][$i][1],
+                        'technologies_names' => $result[1][$i][2],
+                    ];
+                }
+                return ["Technologies par Catégorie" => $response, "http" => $result[2]];
             }else{
-                return ["message" => $result[1]];
+                return ["message" => $result[1], "http" => $result[2]];
             }
         }
 
-        public function updateCategoryById($id, $data){ 
-            $id = htmlspecialchars(strip_tags((int) $id));
+        //update
+        public function updateCategoryBy($arg, $data){ //update category by name or id
+            $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
+            if(is_numeric($arg)){
+                $arg = (int) $arg;
+            }
             $data = explode("=", strval($data)); //ensure is string and explode data to create Category
             $name = htmlspecialchars(strip_tags($data[1]));
             $categoryData = [
@@ -114,44 +130,40 @@
             ];
             //create an instance of category
             $category = new Category($categoryData);
-            $result = $this->categoryManager->updateById($id, $category);
-            return ["message" => $result[1]];
+            $result = $this->categoryManager->updateBy($arg, $category);
+            return ["message" => $result[1], "http" => $result[2]];
         }
-
-        public function updateCategoryByName($name, $data){ 
-            $name = htmlspecialchars(strip_tags($name));
-            $data = explode("=", strval($data)); //ensure is string and explode data to create Category
-            $newName = htmlspecialchars(strip_tags($data[1]));
+       
+        //delete
+        public function deleteCategoryBy($arg, $data){  //delete category by its name or id if not contains technology
+            $label = "name";
+            $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
+            if(is_numeric($arg)){
+                $arg = (int) $arg;
+                $label = "id";
+            }
+            //data for instance of category
             $categoryData = [
-                'name' => $newName,
-            ];
-            //create an instance of category
-            $category = new Category($categoryData);
-            $result = $this->categoryManager->updateByName($name, $category);
-            return ["message" => $result[1]];
-        }
-//TODO : list of technologies 
-        public function deleteCategoryById($id, $data){ 
-            $id = htmlspecialchars(strip_tags((int) $id));
-            $categoryData = [
+                $label => $arg,
                 'deleted' => true,
             ];
             //create an instance of category
             $category = new Category($categoryData);
-            $result = $this->categoryManager->deleteById($id, $category);
-            return ["message" => $result[1]];
-        }
-
-        public function deleteCategoryByName($name, $data){ 
-            $name = htmlspecialchars(strip_tags(strval($name)));
-            $categoryData = [
-                'name' => $name,
-                'deleted' => true,
-            ];
-            //create an instance of category
-            $category = new Category($categoryData);
-            $result = $this->categoryManager->deleteByName($name, $category);
-            return ["message" => $result[1]];
+            $result = $this->categoryManager->deleteBy($arg, $category);
+            
+            if(!$result[0] && $result[2] === 403){ //formating response   
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $response[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'name' => $result[1][$i][0]->getName(),
+                        'technologies_id' => $result[1][$i][1],
+                        'technologies_names' => $result[1][$i][2],
+                    ];
+                }
+                return ["message" => ["Erreur : Technologies présentent dans la Catégorie", $response], "http" => $result[2]]; 
+            }else{                
+                return ["message" => $result[1], "http" => $result[2]];
+            }
         }
 
         public function setConnection(){

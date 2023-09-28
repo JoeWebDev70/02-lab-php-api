@@ -17,7 +17,7 @@
             $logo = $technology->getLogo(); 
             if($logo == ""){$logo = null;} //pass null for not creating void
             $categoryId = $technology->getCategoryId();
-            
+    //TODO check if category exist
             //check if technology exist with this category 
             $sql = "SELECT * FROM technology AS t 
                     WHERE t.name = :name AND t.category_id = :categoryId"; 

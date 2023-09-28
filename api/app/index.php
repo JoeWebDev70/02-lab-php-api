@@ -11,10 +11,12 @@
     $route->addRoute('GET','/', ['all','getAllRoutes'], '', []);
     $route->addRoute('GET','/categories', ['category','showCategories'], '', ['id']);
     $route->addRoute('GET','/categories/name', ['category','showCategories'], '', ['name']);
-    // $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id']);
-    // $route->addRoute('GET','/categories/name/technologies', ['category','showCategoriesTechnologies'], '', ['name']);
-    $route->addRoute('GET','/category/{id}', ['category','showCategoryById'], 'id:(\d+)', ['id']);
-    $route->addRoute('GET','/category/{name}', ['category','showCategoryByName'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']); 
+    $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id']);
+    $route->addRoute('GET','/categories/name/technologies', ['category','showCategoriesTechnologies'], '', ['name']);
+    $route->addRoute('GET','/category/{id}', ['category','showCategoryBy'], 'id:(\d+)', ['id']);
+    $route->addRoute('GET','/category/{name}', ['category','showCategoryBy'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']); 
+    $route->addRoute('GET','/category/{id}/technologies', ['category','showCategoryTechnologiesBy'], 'id:(\d+)', ['id']);
+    $route->addRoute('GET','/category/{name}/technologies', ['category','showCategoryTechnologiesBy'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']); 
     $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id']);
     $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name']);
     $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyById'], 'id:(\d+)', ['id']);
@@ -25,12 +27,12 @@
     $route->addRoute('POST','/technology', ['technology','addTechnology'], '', ['?name=name&[logo=directoryFile&]categoryId=id']);
     
     //PUT
-    $route->addRoute('PUT','/category/{id}', ['category','updateCategoryById'], 'id:(\d+)', ['id', '?name=newName']);
-    $route->addRoute('PUT','/category/{name}', ['category','updateCategoryByName'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name', '?name=newName']);
+    $route->addRoute('PUT','/category/{id}', ['category','updateCategoryBy'], 'id:(\d+)', ['id', '?name=newName']);
+    $route->addRoute('PUT','/category/{name}', ['category','updateCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name', '?name=newName']);
 
     //DELETE
-    $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryById'], 'id:(\d+)', ['id']);
-    $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryByName'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']);
+    $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryBy'], 'id:(\d+)', ['id']);
+    $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']);
 
     //required headers
     header("Access-Control-Allow-Origin: *"); //acces for all sites and devices
@@ -65,6 +67,7 @@
             //JSON_UNESCAPED_UNICODE : option to display correct words without unicode
             http_response_code($reply["http"]);
             echo json_encode([getReplyName($reply) => $reply[getReplyName($reply)]], JSON_UNESCAPED_UNICODE);
+            
         }
     }else{
         http_response_code($response["http"]);
@@ -76,8 +79,10 @@
             return "message";
         }else if(isset($reply["Categories"])){
             return "Categories";
+        }else if(isset($reply["Technologies par Catégorie"])){
+            return "Technologies par Catégorie";
         }else if(isset($reply["Technologies"])){
             return "Technologies";
         }
     }
-?>
+
