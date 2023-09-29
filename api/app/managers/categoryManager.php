@@ -95,16 +95,18 @@
 
         public function getBy($idOrName){ //display one category by its id or name
             $result = $this->categoryExist($idOrName); //check if exist 
-            if($result){ //exist
-                if($result["id"] != null && $result["deleted"] == 0){ //check if contain some data
+            if($result){ //category exist 
+                if($result["deleted"] == 0){ //name exist wasn't deleted 
                     $response = new Category($result);
                     return [true, $response, 200];
-                }else{ 
+                }else{  //exist but was deleted
                     return [false, "Erreur : Aucune catégorie existante", 404];
                 }
             }else if($result == "erreur execution"){
                 return [false, "Erreur : Dans l'execution de la requête", 400];
-            }  
+            }else{ //doesn't exist
+                return [false, "Erreur : Aucune catégorie existante", 404];
+            }
         }
 
         public function getListBy($idOrname){ //display one category by its id or name with its technologies
@@ -222,89 +224,14 @@
                 return [false, "Erreur : Aucune catégorie existante", 404];
             }
         }
-        // public function deleteById($id, Category $category){
-        //     $result = $this->categoryExist($id); //check if exist
-            
-        //     if(!$result){ //category doesn't exist
-        //         return [false, "Erreur : Catégorie inexistante", 404];
-        //     }else{//category exist in db
-        //         if($result["deleted"] === 1){  //category was deleted before
-        //             return [false, "Erreur : Catégorie inexistante", 404];
-        //         }else{ // was not deleted before
 
-        //             //check if contains technology -->> change first
-        //             $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
-        //                 FROM (category AS c
-        //                 LEFT JOIN technology AS t on c.id = t.category_id)
-        //                 WHERE c.deleted = 0 AND t.deleted = 0 AND c.id = :id";
-        //             $sth = $this->connection->prepare($sql);
-        //             $sth->bindParam(':id', $id, PDO::PARAM_INT);
-        //             $sth->execute();
-        //             $data = $sth->fetch(PDO::FETCH_ASSOC);
-        //             if($data["c_id"] != null){ //contain some technologies then send list
-        //                 $dataCategory = ["id" => $data["c_id"], "name" => $data["c_name"]];
-        //                 $response[] = [new Category($dataCategory), $data["t_id"], $data["t_name"]]; 
-        //                 return [false, $response, 403];
-        //             }else{//doesn't contain technologies then update
-        //                 $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.id = :id";
-        //                 $sth = $this->connection->prepare($sql);
-        //                 $sth->bindParam(':id', $id, PDO::PARAM_INT);
-                        
-        //                 if($sth->execute()){
-        //                     return [true, "Succès : Catégorie supprimée", 200];
-        //                 }else{
-        //                     return [false, "Erreur : Dans l'execution de la requête", 400];
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        // public function deleteByName($name, Category $category){
-        //     $result = $this->categoryExist($id); //check if exist
-
-        //     if(!$result){ //category doesn't exist
-        //         return [false, "Erreur : Catégorie inexistante", 404];
-        //     }else{//category exist in db
-        //         if($result["deleted"] === 1){  //category was deleted before
-        //             return [false, "Erreur : Catégorie inexistante", 404];
-        //         }else{ // was not deleted before
-
-        //             //check if contains technology -->> change first
-        //             $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
-        //                 FROM (category AS c
-        //                 LEFT JOIN technology AS t on c.id = t.category_id)
-        //                 WHERE c.deleted = 0 AND t.deleted = 0 AND c.name = :name";
-        //             $sth = $this->connection->prepare($sql);
-        //             $sth->bindParam(':name', $name, PDO::PARAM_STR);
-        //             $sth->execute();
-        //             $data = $sth->fetch(PDO::FETCH_ASSOC);
-        //             if($data["c_id"] != null){ //contain some technologies then send list
-        //                 $dataCategory = ["id" => $data["c_id"], "name" => $data["c_name"]];
-        //                 $response[] = [new Category($dataCategory), $data["t_id"], $data["t_name"]]; 
-        //                 return [false, $response, 403];
-        //             }else{//doesn't contain technologies then update
-        //                 $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.name = :name";
-        //                 $sth = $this->connection->prepare($sql);
-        //                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                        
-        //                 if($sth->execute()){
-        //                     return [true, "Succès : Catégorie supprimée", 200];
-        //                 }else{
-        //                     return [false, "Erreur : Dans l'execution de la requête", 400];
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        private function categoryExist($idOrName){
+        private function categoryExist($idOrName){ //check if category exist and return its data
             if(is_int($idOrName)){ //by id
-                $sql = "SELECT * FROM category AS c WHERE id=:id";
+                $sql = "SELECT * FROM category WHERE id=:id";
                 $sth = $this->connection->prepare($sql);
                 $sth->bindParam(':id', $idOrName, PDO::PARAM_INT);
             }else{ //by name
-                $sql = "SELECT * FROM category AS c WHERE name=:name";
+                $sql = "SELECT * FROM category WHERE name=:name";
                 $sth = $this->connection->prepare($sql);
                 $sth->bindParam(':name', $idOrName, PDO::PARAM_STR);
             }

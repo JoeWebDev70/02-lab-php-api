@@ -21,31 +21,45 @@
     //strip_tags : delete HTML and PHP tag from string
     //htmlspecialchars : convert special characters into HTML entities
 
-        public function addTechnology($arg, $data){
-            $data = strval($data); //ensure is string
-            $data = explode("&", $data); //explode data to create Technology
+    //TODO check for factorization
+        public function addTechnology($arg, $data){ 
             $name = null;
             $logo = "";
             $categoryId = null;
 
-            if(sizeof($data) > 0){ //check if contain values 
-                foreach($data as $key){
+            $dataTechnology = strval($data[0]); //ensure is string
+            $dataTechnology = explode("&", $dataTechnology); //explode data to create Technology
+            
+            if(sizeof($dataTechnology) > 0){ //check if contain values 
+                foreach($dataTechnology as $key){
                     $dataExplode[] = explode("=", $key); 
                 }
-
+                
                 for($i = 0; $i < sizeof($dataExplode); $i++){ //get values
                     for($j = 0; $j < sizeof($dataExplode[$i]); $j++){ 
                         if($dataExplode[$i][$j] == 'name'){
                             $name = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
-                        }else if($dataExplode[$i][$j] == 'logo'){
-                            $logo = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
                         }else if($dataExplode[$i][$j] == 'categoryId'){
                             $categoryId = (int) htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
                         }
                     }
                 }
+
                 //create new technology
                 if($name != null && ($categoryId != null && $categoryId > 0)){
+                    if(isset($data[1]['logo'])){ //some logo is set
+                        $fileExt = $data[1]['logo']['extension'];
+                        //check if its valid format
+                        if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'))) {
+                            $fileName = $name."_".$categoryId.".".$fileExt;
+                            $fileDir = $data[1]['logo']['path'];
+                            $fileFullPath = $fileDir.$fileName;
+                            $temporaryFileFullPath = $data[1]['logo']['tmp_name'];
+                            $logo = $fileFullPath;
+                            
+                        }
+                    }
+ 
                     $technologyData = [
                         'name' => $name,
                         'logo' => $logo,
@@ -55,9 +69,16 @@
                     $technology = new Technology($technologyData);
                     $result = $this->technologyManager->add($technology);
                     
+                    if($result[2] == 201){ 
+                        rename($temporaryFileFullPath, $fileFullPath);
+                    }else{
+                        unlink($temporaryFileFullPath);
+                    }
+
                     return ["message" => $result[1], "http" => $result[2]];
-                
+                        
                 }else{
+                    unlink($temporaryFileFullPath);
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{
@@ -84,7 +105,7 @@
                 return ["message" => $result[1], "http" => $result[2]];
             }
         }
-      
+
         public function showTechnologyById($id){ 
             $id = (int) $id; //ensure is INT
             $result = $this->technologyManager->getById($id);
@@ -123,33 +144,92 @@
             }
         }
 
-        // public function updateCategoryById($id, $data){ 
-        //     $id = htmlspecialchars(strip_tags((int) $id));
-        //     $data = explode("=", strval($data)); //ensure is string and explode data to create Category
-        //     $name = htmlspecialchars(strip_tags($data[1]));
-        //     $categoryData = [
-        //         'name' => $name,
-        //     ];
-        //     //create an instance of category
-        //     $category = new Category($categoryData);
-        //     $result = $this->categoryManager->updateById($id, $category);
-        //     return ["message" => $result[1]];
-        // }
+//TODO check for id is_numeric before ((int)) for other function also in category
+        //update
+        public function updateTechnology($arg, $data){
+            if(is_numeric(htmlspecialchars(strip_tags($arg)))){
+                $id = (int) htmlspecialchars(strip_tags($arg));
+            }else{
+                return ["message" => "Erreur dans la requête", "http" => 400 ];
+            }
+            
+            $name = "";
+            $logo = "";
+            $categoryId = "";
 
-        
+            $dataTechnology = strval($data[0]); //ensure is string
+            $dataTechnology = explode("&", $dataTechnology); //explode data to create Technology
+            
+            if(sizeof($dataTechnology) > 0){ //check if contain values 
+                foreach($dataTechnology as $key){
+                    $dataExplode[] = explode("=", $key); 
+                }
+                
+                for($i = 0; $i < sizeof($dataExplode); $i++){ //get values
+                    for($j = 0; $j < sizeof($dataExplode[$i]); $j++){ 
+                        if($dataExplode[$i][$j] == 'name'){
+                            $name = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
+                        }else if($dataExplode[$i][$j] == 'categoryId'){
+                            $categoryId = (int) htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
+                        }
+                    }
+                }
 
-        // public function deleteCategoryById($id, $data){ 
-        //     $id = htmlspecialchars(strip_tags((int) $id));
-        //     $categoryData = [
-        //         'deleted' => true,
-        //     ];
-        //     //create an instance of category
-        //     $category = new Category($categoryData);
-        //     $result = $this->categoryManager->deleteById($id, $category);
-        //     return ["message" => $result[1]];
-        // }
+                //create new technology
+                if($id != null){
+                    $oldTechnology = $this->technologyManager->getById($id);
+                    if($oldTechnology[0]){ //formating response
+                        for($i = 0; $i < sizeof($oldTechnology[1]); $i++){
+                            $oldName = $oldTechnology[1][$i][0]->getName();
+                            $oldLogo = $oldTechnology[1][$i][0]->getLogo();
+                            $oldCategory = $oldTechnology[1][$i][0]->getCategoryId();
+                        }
+                    
+                        if($name == ""){$name = $oldName;}       
+                        if($categoryId == ""){$categoryId = $oldCategory;}
+                        
+                        if(isset($data[1]['logo'])){ //some logo is set
+                            $newFileExt = $data[1]['logo']['extension'];
+                            //check if its valid format
+                            if (in_array($newFileExt, array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'))) {
+                                
+                                $fileName = $newName ."_".$newCategoryId.".".$newFileExt;
+                                $fileDir = $data[1]['logo']['path'];
+                                $fileFullPath = $fileDir.$fileName;
+                                $temporaryFileFullPath = $data[1]['logo']['tmp_name'];
+                                $logo = $fileFullPath;
+                            }
+                        }
 
-        
+                        if($logo == ""){$logo = $oldLogo;}
+
+                    }else{
+                        return ["message" => $result[1], "http" => $result[2]];
+                    }
+
+                    $technologyData = [
+                        'id' => $id,
+                        'name' => $name,
+                        'logo' => $logo,
+                        'categoryId' => $categoryId,
+                    ];
+                                    
+                    $technology = new Technology($technologyData);
+                    $result = $this->technologyManager->update($id, $technology);
+                    
+                    //TODO si ok result alors enlever old logo des fichiers et set nouveau
+                    //sinon détruire nouveau
+
+
+                    return ["message" => $result[1], "http" => $result[2]];
+                
+                }else{
+                    return ["message" => "Erreur dans la requête", "http" => 400 ];
+                }
+            }else{
+                return ["message" => "Erreur dans la requête", "http" => 400 ];
+            }
+        }
 
         public function setConnection(){
             $this->db = Database::getInstance();

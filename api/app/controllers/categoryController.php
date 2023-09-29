@@ -20,9 +20,9 @@
     //!injection protection
     //strip_tags : delete HTML and PHP tag from string
     //htmlspecialchars : convert special characters into HTML entities
-
+        //add
         public function addCategory($arg, $data){
-            $data = strval($data); //ensure is string
+            $data = strval($data[0]); //ensure is string
             $data = explode("=", $data); //explode data to create Category
             if(sizeof($data) > 0){
                 $name = htmlspecialchars(strip_tags($data[1]));
@@ -40,6 +40,7 @@
             }
         }
 
+        //get
         public function showCategories($orderBy = "id"){ //show all categories 
             $orderBy = strval($orderBy); //ensure is string
             if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
@@ -123,7 +124,7 @@
             if(is_numeric($arg)){
                 $arg = (int) $arg;
             }
-            $data = explode("=", strval($data)); //ensure is string and explode data to create Category
+            $data = explode("=", strval($data[0])); //ensure is string and explode data to create Category
             $name = htmlspecialchars(strip_tags($data[1]));
             $categoryData = [
                 'name' => $name,
@@ -135,8 +136,8 @@
         }
        
         //delete
-        public function deleteCategoryBy($arg, $data){  //delete category by its name or id if not contains technology
-            $label = "name";
+        public function deleteCategoryBy($arg){  //delete category by its name or id if not contains technology
+            $label = "name"; 
             $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
             if(is_numeric($arg)){
                 $arg = (int) $arg;

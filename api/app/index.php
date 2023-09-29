@@ -29,7 +29,8 @@
     //PUT
     $route->addRoute('PUT','/category/{id}', ['category','updateCategoryBy'], 'id:(\d+)', ['id', '?name=newName']);
     $route->addRoute('PUT','/category/{name}', ['category','updateCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name', '?name=newName']);
-
+    $route->addRoute('PUT','/technology/{id}', ['technology','updateTechnology'], 'id:(\d+)', ['id', '?name=newName']);
+    
     //DELETE
     $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryBy'], 'id:(\d+)', ['id']);
     $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name']);
@@ -58,7 +59,7 @@
                 $arg = null;
             }
             if(sizeof($response) >= 4 && sizeof($response[3]) > 0 ){//get data
-                $data = $response[3][0]; 
+                $data = $response[3];
             }else{
                 $data = null;
             }

@@ -2,6 +2,44 @@
 
 ## Effectuer les requêtes
 
+### Infos Diverses:
+    - Les fichiers images = logos:
+        - methode POST : sont a insérér dans Body -> form-data ou binary;
+        - methode PUT : sont a insérér dans Body -> binary;
+        
+    - Caractères autorisés pour les noms : a-zA-Z0-9À-ÿ -_
+
+    - Les Arguments à renseigner :
+        - entre accolade dans l'url :
+            - ex : {id}, {name}
+        - commençant par "?":
+            - ex : "?name=name&categoryId=id[&logo=directoryFile]"
+                - Obligatoire :  name=newName, categoryId=id ; 
+                - Facultatif : [logo=directoryFile&]
+            Exemple : 
+                {
+                    "methode": "PUT",
+                    "url": "/category/{name}",
+                    "arguments": [
+                        "name",
+                        "?name=newName"
+                    ]
+                },
+                URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
+            
+    - Les autres Arguments ne sont pas à renseigner (ils sont fixes et servent pour la requête).
+        Exemple : 
+            {
+                "methode": "GET",
+                "url": "/categories/name",
+                "arguments": [
+                    "name"
+                ]
+            },
+    
+    - Les catégories sont uniques et ne peuvent être supprimées si elles sont associées à des technologies;
+    - Les technologies sont unique par catégorie;
+
 ### GET : 
 
     Exemples d'url :
@@ -30,40 +68,6 @@
         - http://php-dev-2.online/category/5
         - http://php-dev-2.online/category/Développement front end
 
-### Infos Diverses:
-
-    - Caractères autorisés pour les noms : a-zA-Z0-9À-ÿ -_
-
-    - Les Arguments à renseigner :
-        - entre accolade dans l'url :
-            - ex : {id}, {name}
-        - commençant par "?":
-            - ex : "?name=name&[logo=directoryFile&]categoryId=id"
-                - Obligatoire :  name=newName, categoryId=id ; 
-                - Facultatif : [logo=directoryFile&]
-            Exemple : 
-                {
-                    "methode": "PUT",
-                    "url": "/category/{name}",
-                    "arguments": [
-                        "name",
-                        "?name=newName"
-                    ]
-                },
-                URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
-            
-    - Les autres Arguments ne sont pas à renseigner (ils sont fixes et servent pour la requête).
-        Exemple : 
-            {
-                "methode": "GET",
-                "url": "/categories/name",
-                "arguments": [
-                    "name"
-                ]
-            },
-    
-    - Les catégories sont uniques et ne peuvent être supprimées si elles sont associées à des technologies;
-    - Les technologies sont unique par catégorie;
 
 
 ## Routes

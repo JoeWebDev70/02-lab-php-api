@@ -1,11 +1,5 @@
 <?php
 
-    // namespace Router\Router;
-// require_once './Controllers/CategoryController.php';
-
-// $category = new CategoryController();
-// $category->showCategories();
-
     class Router{
         private $routes = [];
         private $controllers = [
@@ -49,7 +43,6 @@
 
                 //check method and url pattern
                 if ($method === $routeMethod && preg_match("#^$routePattern$#", $url, $matches)){ 
-
                     array_shift($matches);
 
                     if(sizeof($matches) > 0){ //pass arguments for functions
@@ -57,9 +50,20 @@
                     }else{
                         $arg = $routeArgs;
                     }
+
                     //get controller name
                     $controllerName = strtolower($routeHandler[0]);
                     $controller = $this->controllers[$controllerName];
+
+                    // check if put or post for technology
+                    if(($method === "POST" || $method === "PUT") && $controller == "TechnologyController"){
+                        if (isset($_FILES['logo'])) { //check if contain some file
+                            $dataTempLogo = $this->gestionFile($_FILES['logo']);
+                        }else {
+                            $dataTempLogo = $this->gestionFile(file_get_contents('php://input'));
+                        }
+                        if($dataTempLogo){$data[] = ["logo" => $dataTempLogo];}
+                    }
 
                     //return controller file name and class, function to call and argument to pass
                     return [$controller, $routeHandler[1], $arg, $data];
@@ -81,7 +85,42 @@
         }
         
 
+        private function gestionFile($dataFile){
+            $uploadDir = './resources_logo/'; 
+            $temporaryFileName = 'temporaryLogo';
+            $temporaryFilePath = $uploadDir.$temporaryFileName;
+            if(is_array($dataFile)){ //file get by $_FILE
+                $fileTmpExt =  $_FILES['logo']['type'];
+                $fileTmpExt = explode("/",$fileTmpExt);
+                $fileExt = strtolower($fileTmpExt[1]);
+                $tmpName = $_FILES['logo']['tmp_name'];
+                $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
+                if(move_uploaded_file($tmpName, $temporaryFileFullPath)){
+                    return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
+                }
+            }else{ // file get by binary
+                file_put_contents($temporaryFilePath, $dataFile);
+                $fileTmpExt = mime_content_type($temporaryFilePath);
+                $fileTmpExt = explode("/",$fileTmpExt);
+                $fileExt = strtolower($fileTmpExt[1]);
+                $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
+                if(rename($temporaryFilePath, $temporaryFileFullPath)){
+                    return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
+                }
+            }
+
+            return false;
+        }
+
+
     }
         
+
+    
+
+
+
+
+
 
 ?>
