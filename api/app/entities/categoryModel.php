@@ -1,5 +1,6 @@
 <?php
-//entities = models
+    //entities = models => managed by CategoryManager
+    //Categories are considered like repository. They are unique and contains technologies
 
     class Category{
         //attributes         
@@ -51,6 +52,7 @@
             }
         }
 
+        //getters
         public function getId(){
             return $this->id;
         }

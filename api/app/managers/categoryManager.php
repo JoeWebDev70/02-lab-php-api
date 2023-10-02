@@ -1,5 +1,5 @@
 <?php 
-//manager = DAO - Data Access Object
+    //manager = DAO - Data Access Object => controlled by Category Controller
     require_once './Entities/CategoryModel.php';
 
     class CategoryManager {
@@ -13,9 +13,9 @@
         //add
         public function add(Category $category){ //add new category
             $name = $category->getName(); //get data to create category
-            $result = $this->categoryExist($name); //check if exist yet
+            $result = $this->categoryExist($name); //check if exist yet 
 
-            if(!$result){ //category doesn't exist yet
+            if(!$result){ //category doesn't exist yet then create it
                 $sql = "INSERT INTO category(name) VALUES(:name)";
                 $sth = $this->connection->prepare($sql);
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
@@ -25,7 +25,7 @@
                 }catch(PDOException $e){
                     return [false, "Erreur : ".$e->getMessage(), 400];
                 }
-            }else if ($result["deleted"] == 1){ //name exist but it was deleted before
+            }else if ($result["deleted"] == 1){ //name exist but it was deleted before then update it
                 $sql = "UPDATE category AS c SET c.deleted = 0 WHERE c.name=:name";
                 $sth = $this->connection->prepare($sql);
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
@@ -43,7 +43,7 @@
         }
 
         //get
-        public function getList($orderBy){ //display all categories name
+        public function getList($orderBy){ //display all categories name without the technologies associated
             $displayResult = false; //bool for check if there is something to display
             $sql = "SELECT c.id, c.name
                     FROM category AS c WHERE c.deleted = 0 ORDER BY " . $orderBy . " ASC";
@@ -62,12 +62,12 @@
                 }else{ //no category exist
                     return [false, "Erreur : Aucune catégorie existante", 404];
                 }
-            }catch(PDOException $e){ 
+            }catch(PDOException $e){  //some error in the sql execution
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }
         }
         
-        public function getLists($orderBy){ //display all categories name with its technologies
+        public function getLists($orderBy){ //display Categories which have some technologies associated and their name
             $displayResult = false; //bool for check if there is something to display
             $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
                     FROM (category AS c
@@ -88,7 +88,7 @@
                 }else{
                     return [false, "Erreur : Aucune catégorie n'est associée à une technologie", 404];
                 }
-            }catch(PDOException $e){
+            }catch(PDOException $e){ //some error in SQL execution
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }
         }
@@ -96,20 +96,20 @@
         public function getBy($idOrName){ //display one category by its id or name
             $result = $this->categoryExist($idOrName); //check if exist 
             if($result){ //category exist 
-                if($result["deleted"] == 0){ //name exist wasn't deleted 
+                if($result["deleted"] == 0){ //name exist and wasn't deleted 
                     $response = new Category($result);
                     return [true, $response, 200];
                 }else{  //exist but was deleted
                     return [false, "Erreur : Aucune catégorie existante", 404];
                 }
-            }else if($result == "erreur execution"){
+            }else if($result == "erreur execution"){ //some error in chek if exist
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }else{ //doesn't exist
                 return [false, "Erreur : Aucune catégorie existante", 404];
             }
         }
 
-        public function getListBy($idOrname){ //display one category by its id or name with its technologies
+        public function getListBy($idOrname){ //display one category by its id or name if have some technologies
             $result = $this->categoryExist($idOrname); //check if exist 
             
             if($result){ //category exist 
@@ -138,7 +138,7 @@
                         }else{ //category doesn't contain technology
                             return [false, "La catégorie ".$result["id"] ." : ". $result["name"] ." ne contient pas de technologie", 404];
                         }
-                    }catch(PDOException $e){
+                    }catch(PDOException $e){ //some error in sql execution
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     }
                 }else{ //exist but was deleted
@@ -152,7 +152,7 @@
         }
 
         //update
-        public function updateBy($arg, Category $category){ //update category searched by id
+        public function updateBy($arg, Category $category){ //update category searched by id or name
             $newName = $category->getName(); //get data to update category    
             $result = $this->categoryExist($arg); //check if exist
 
@@ -166,7 +166,7 @@
                     try{
                         $sth->execute();
                         return [true, 'Succès : Catégorie modifiée', 200];
-                    }catch(PDOException $e){
+                    }catch(PDOException $e){ //some error in sql execution
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     }
                 }else{ //exist but was deleted
@@ -180,7 +180,7 @@
         }
        
         //delete = pass false/1 in column deleted
-        public function deleteBy($arg, Category $category){
+        public function deleteBy($arg, Category $category){ //delete category by id or name
             $result = $this->categoryExist($arg); //check if exist
             
             if($result){ //category exist in db
@@ -212,7 +212,7 @@
                                 return [false, "Erreur : Dans l'execution de la requête", 400];
                             }
                         }
-                    }catch(PDOException $e){
+                    }catch(PDOException $e){ //some error in sql execution
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     }
                 }else{ //exist but was deleted
@@ -236,16 +236,16 @@
                 $sth->bindParam(':name', $idOrName, PDO::PARAM_STR);
             }
 
-            try{
+            try{ //return data for this category
                 $sth->execute();
                 return $sth->fetch(PDO::FETCH_ASSOC);
-            }catch(PDOException $e){
+            }catch(PDOException $e){ //some error in sql execution
                 return "erreur execution";
             }
             
         }
 
-        public function setConnection($connection){
+        public function setConnection($connection){ //db connection
             $this->connection = $connection ;
         }
     }

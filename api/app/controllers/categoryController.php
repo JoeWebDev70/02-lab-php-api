@@ -1,10 +1,13 @@
 <?php
-//controller
-    // namespace Controllers\CategoryController;
+    //controller
     require_once './Database/Connection.php';
     require_once './Managers/CategoryManager.php';
     require_once './Entities/CategoryModel.php';
-
+   
+//!injection protection
+//strip_tags : delete HTML and PHP tag from string
+//htmlspecialchars : convert special characters into HTML entities
+    
     class CategoryController{
 
         private $categoryManager;
@@ -12,20 +15,17 @@
         private $connection;
 
         // constructor
-        public function __construct(){
+        public function __construct(){ //set connection and create an instance of category manager
             $this->setConnection();
-            $this->categoryManager = new CategoryManager($this->connection); // create new instance of classe
+            $this->categoryManager = new CategoryManager($this->connection); 
         }
 
-    //!injection protection
-    //strip_tags : delete HTML and PHP tag from string
-    //htmlspecialchars : convert special characters into HTML entities
         //add
-        public function addCategory($arg, $data){
+        public function addCategory($arg, $data){ 
             $data = strval($data[0]); //ensure is string
             $data = explode("=", $data); //explode data to create Category
             if(sizeof($data) > 0){
-                $name = htmlspecialchars(strip_tags($data[1]));
+                $name = htmlspecialchars(strip_tags($data[1])); 
                 $categoryData = [
                     'name' => $name,
                 ];
@@ -58,7 +58,7 @@
             }
         }
 
-        public function showCategoriesTechnologies($orderBy = "id"){ //show all categories with its technologies
+        public function showCategoriesTechnologies($orderBy = "id"){ //show all categories which contains technologies
             $orderBy = strval($orderBy); //ensure is string
             if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
             $result = $this->categoryManager->getLists($orderBy);
@@ -97,7 +97,7 @@
             }
         }
 
-        public function showCategoryTechnologiesBy($arg){ //show category and its technologies
+        public function showCategoryTechnologiesBy($arg){ //show category by name or id if have some technologies
             $arg = htmlspecialchars(strip_tags(strval($arg))); //check and format arg
             if(is_numeric($arg)){
                 $arg = (int) $arg;
@@ -167,7 +167,7 @@
             }
         }
 
-        public function setConnection(){
+        public function setConnection(){ //get instance of connection to create db connection with pattern sigleton
             $this->db = Database::getInstance();
             $this->connection = $this->db->getConnection();
         }

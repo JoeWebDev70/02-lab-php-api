@@ -11,11 +11,11 @@
 
 
         //method
-        public function addRoute($method, $pattern, $handler, $routeRegex, $arg = []){
-            $this->routes[] = [$method, $pattern, $handler, $routeRegex, $arg];
+        public function addRoute($method, $pattern, $handler, $routeRegex, $arg = [], $routeExplanation = ""){
+            $this->routes[] = [$method, $pattern, $handler, $routeRegex, $arg, $routeExplanation];
         }
 
-        public function match(){
+        public function match(){ //match the route requested
             $url = urldecode($_SERVER['REQUEST_URI']);  //urldecode for spaces and specials char
             $method = $_SERVER['REQUEST_METHOD'];
             
@@ -55,13 +55,14 @@
                     $controllerName = strtolower($routeHandler[0]);
                     $controller = $this->controllers[$controllerName];
 
-                    // check if put or post for technology
+                    // check if put or post some logo for technology
                     if(($method === "POST" || $method === "PUT") && $controller == "TechnologyController"){
                         if (isset($_FILES['logo'])) { //check if contain some file
                             $dataTempLogo = $this->gestionFile($_FILES['logo']);
                         }else {
                             $dataTempLogo = $this->gestionFile(file_get_contents('php://input'));
                         }
+
                         if($dataTempLogo){$data[] = ["logo" => $dataTempLogo];}
                     }
 
@@ -74,53 +75,51 @@
             
         }
                 
-        public function getAllRoutes(){
-            // $listRoutes = [];
+        public function getAllRoutes(){ //display all routes and explaination
+            
             foreach($this->routes as $route){
                 //Assign variables as if they were an array
-                list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs) = $route;
-                $listRoutes[] = ["methode" => $routeMethod, "url" => $routePattern, "arguments" => $routeArgs];
+                list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs, $routeExplanation) = $route;
+                $listeRoutes[] = ["methode" => $routeMethod, "url" => $routePattern, "arguments" => $routeArgs, "explication" => $routeExplanation];
             }
-            return $listRoutes;
+            return $listeRoutes;
         }
         
-
-        private function gestionFile($dataFile){
+        private function gestionFile($dataFile){ //logo file gestion
             $uploadDir = './resources_logo/'; 
             $temporaryFileName = 'temporaryLogo';
             $temporaryFilePath = $uploadDir.$temporaryFileName;
             if(is_array($dataFile)){ //file get by $_FILE
-                $fileTmpExt =  $_FILES['logo']['type'];
+                //get the extension file
+                $fileTmpExt =  $_FILES['logo']['type']; 
                 $fileTmpExt = explode("/",$fileTmpExt);
                 $fileExt = strtolower($fileTmpExt[1]);
                 $tmpName = $_FILES['logo']['tmp_name'];
+                //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
                 $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
-                if(move_uploaded_file($tmpName, $temporaryFileFullPath)){
+                if(move_uploaded_file($tmpName, $temporaryFileFullPath)){ //store the file temporarly with always the same name
                     return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
                 }
             }else{ // file get by binary
-                file_put_contents($temporaryFilePath, $dataFile);
-                $fileTmpExt = mime_content_type($temporaryFilePath);
-                $fileTmpExt = explode("/",$fileTmpExt);
-                $fileExt = strtolower($fileTmpExt[1]);
-                $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
-                if(rename($temporaryFilePath, $temporaryFileFullPath)){
-                    return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
+                if($dataFile != ""){ //if contains data
+                    file_put_contents($temporaryFilePath, $dataFile); //store the file temporarly with always the same name
+                    //get the extension file
+                    $fileTmpExt = mime_content_type($temporaryFilePath);
+                    $fileTmpExt = explode("/",$fileTmpExt);
+                    $fileExt = strtolower($fileTmpExt[1]);
+                    //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
+                    $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
+                    if(rename($temporaryFilePath, $temporaryFileFullPath)){ //rename it with extension
+                        return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
+                    }
                 }
             }
-
             return false;
+
         }
 
 
     }
         
-
-    
-
-
-
-
-
 
 ?>
