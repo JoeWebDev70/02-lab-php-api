@@ -82,9 +82,9 @@
                 }; 
 
                 if($displayResult){ 
-                    return [false, "Erreur : Aucune technology existante", 404];
-                }else{
                     return [true, $result, 200];
+                }else{
+                    return [false, "Erreur : Aucune technology existante", 404];
                 }
             }catch(PDOException $e){ //some error in sql execution
                 return [false, "Erreur : Dans l'execution de la requête", 400];
@@ -157,8 +157,17 @@
             if($result){ //category exist and wasn't deleted
                 //check if technology exist with this category 
                 $response = $this->checkIfExistWithCategory($name, $categoryId);
-            
+                $update = false;
                 if(!$response){ //doesn't exist yet with this category then update in db
+                    $update = true;
+                }else if($response == "erreur execution"){ //some errore in check if exist
+                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                }else{ //exist in this category and wasn't deleted 
+                    if($id == $response["id"]){$update = true;} //if technology id is the same then update
+                } 
+
+                if($update){
+                    
                     $sql = "UPDATE technology 
                             SET name = :name, logo = :logo, category_id = :categoryId 
                             WHERE id = :id ";
@@ -173,11 +182,10 @@
                     }catch(PDOException $e){ //some error in sql execution
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     } 
-                }else if($result == "erreur execution"){ //some errore in check if exist
-                    return [false, "Erreur : Dans l'execution de la requête", 400];
-                }else{ //exist in this category and wasn't deleted 
+                }else{
                     return [false, 'Erreur : Technology déjà existante avec cette Catégorie', 403];
-                } 
+                }
+                
             }else if($result[2] == 400){
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }else{ //category does't exist

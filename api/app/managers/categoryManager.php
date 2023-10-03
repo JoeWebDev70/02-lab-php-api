@@ -26,9 +26,10 @@
                     return [false, "Erreur : ".$e->getMessage(), 400];
                 }
             }else if ($result["deleted"] == 1){ //name exist but it was deleted before then update it
-                $sql = "UPDATE category AS c SET c.deleted = 0 WHERE c.name=:name";
+                $id = $result["id"];
+                $sql = "UPDATE category AS c SET c.deleted = 0 WHERE c.id=:id";
                 $sth = $this->connection->prepare($sql);
-                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                $sth->bindParam(':id', $id, PDO::PARAM_STR);
                 try{ //update
                     $sth->execute();
                     return [true, 'Succès : Catégorie créée', 201];
@@ -115,31 +116,13 @@
             if($result){ //category exist 
                 if ($result["deleted"] == 0){ //name exist wasn't deleted 
                     $id = $result["id"];
-                    $displayResult = false; //bool for check if there is something to display
-                    
-                    $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
-                            FROM (category AS c
-                            LEFT JOIN technology AS t on c.id = t.category_id)
-                            WHERE t.deleted = 0 AND c.id = :id";
-                    $sth = $this->connection->prepare($sql);
-                    $sth->bindParam(':id', $id, PDO::PARAM_INT);
-                    try{ 
-                        $sth->execute();
-                        while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
-                            if($data["c_id"] != null){
-                                $dataCategory = ["id" => $data["c_id"], "name" => $data["c_name"]];
-                                $response[] = [new Category($dataCategory), $data["t_id"], $data["t_name"]];
-                                $displayResult = true;
-                            } 
-                        }; 
-
-                        if($displayResult){ //category contain some technologies
-                            return [true, $response, 200];
-                        }else{ //category doesn't contain technology
-                            return [false, "La catégorie ".$result["id"] ." : ". $result["name"] ." ne contient pas de technologie", 404];
-                        }
-                    }catch(PDOException $e){ //some error in sql execution
+                    $response = $this->getTechnologies($id);
+                    if($response){ //category contain some technologies
+                        return [true, $response[1], 200];
+                    }else if($response == "erreur d'execution"){
                         return [false, "Erreur : Dans l'execution de la requête", 400];
+                    }else{ //category doesn't contain technology
+                        return [false, "La catégorie ".$result["id"] ." : ". $result["name"] ." ne contient pas de technologie", 404];
                     }
                 }else{ //exist but was deleted
                     return [false, "Erreur : Aucune catégorie existante", 404];
@@ -159,7 +142,7 @@
             if($result){ //category exist in db
                 if ($result["deleted"] == 0){ //name exist wasn't deleted 
                     $id = $result["id"];
-                    $sql = "UPDATE category AS c SET c.name=:newName WHERE c.deleted = 0 AND c.id = :id";
+                    $sql = "UPDATE category AS c SET c.name=:newName WHERE c.id = :id";
                     $sth = $this->connection->prepare($sql);
                     $sth->bindParam(':newName', $newName, PDO::PARAM_STR);
                     $sth->bindParam(':id', $id, PDO::PARAM_INT);
@@ -186,34 +169,21 @@
             if($result){ //category exist in db
                 if ($result["deleted"] == 0){ //name exist wasn't deleted 
                     $id = $result["id"];
-                    //check if contains technology -->> change first
-                    $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
-                        FROM (category AS c
-                        LEFT JOIN technology AS t on c.id = t.category_id)
-                        WHERE c.deleted = 0 AND t.deleted = 0 AND c.id = :id";
-                    $sth = $this->connection->prepare($sql);
-                    $sth->bindParam(':id', $id, PDO::PARAM_INT);
-                    try{
-                        $sth->execute();
-                        $data = $sth->fetch(PDO::FETCH_ASSOC);
-
-                        if($data["c_id"] != null){ //contain some technologies then send list
-                            $dataCategory = ["id" => $data["c_id"], "name" => $data["c_name"]];
-                            $response[] = [new Category($dataCategory), $data["t_id"], $data["t_name"]]; 
-                            return [false, $response, 403];
-                        }else{//doesn't contain technologies then update
-                            $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.id = :id";
-                            $sth = $this->connection->prepare($sql);
-                            $sth->bindParam(':id', $id, PDO::PARAM_INT);
-                            try{
-                                $sth->execute();
-                                return [true, "Succès : Catégorie supprimée", 200];
-                            }catch(PDOException $e){
-                                return [false, "Erreur : Dans l'execution de la requête", 400];
-                            }
-                        }
-                    }catch(PDOException $e){ //some error in sql execution
+                    $response = $this->getTechnologies($id);
+                    if($response){
+                        return [false, $response[1], 403];
+                    }else if($response == "erreur d'execution"){
                         return [false, "Erreur : Dans l'execution de la requête", 400];
+                    }else{//doesn't contain technologies then update
+                        $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.id = :id";
+                        $sth = $this->connection->prepare($sql);
+                        $sth->bindParam(':id', $id, PDO::PARAM_INT);
+                        try{
+                            $sth->execute();
+                            return [true, "Succès : Catégorie supprimée", 200];
+                        }catch(PDOException $e){
+                            return [false, "Erreur : Dans l'execution de la requête", 400];
+                        }
                     }
                 }else{ //exist but was deleted
                     return [false, "Erreur : Aucune catégorie existante", 404];
@@ -243,6 +213,33 @@
                 return "erreur execution";
             }
             
+        }
+
+        private function getTechnologies($id){
+            $displayResult = false; // check if there is some informations to display
+            $sql = "SELECT c.id AS c_id, c.name AS c_name, GROUP_CONCAT(t.id SEPARATOR ', ') AS t_id, GROUP_CONCAT(t.name SEPARATOR ', ') AS t_name  
+                    FROM (category AS c
+                    LEFT JOIN technology AS t on c.id = t.category_id)
+                    WHERE t.deleted = 0 AND c.deleted = 0 AND c.id = :id";
+            $sth = $this->connection->prepare($sql);
+            $sth->bindParam(':id', $id, PDO::PARAM_INT);
+            try{ 
+                $sth->execute();
+                while ($result = $sth->fetch(PDO::FETCH_ASSOC)){
+                    if($result["c_id"] != null){
+                        $dataCategory = ["id" => $result["c_id"], "name" => $result["c_name"]];
+                        $response[] = [new Category($dataCategory), $result["t_id"], $result["t_name"]];
+                        $displayResult = true;
+                    } 
+                }; 
+                if($displayResult){
+                    return [$displayResult, $response];
+                }else{
+                    return $displayResult;
+                }  
+            }catch(PDOException $e){ //some error in sql execution
+                return "erreur execution";
+            }
         }
 
         public function setConnection($connection){ //db connection

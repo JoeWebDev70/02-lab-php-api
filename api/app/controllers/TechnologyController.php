@@ -34,17 +34,9 @@
                     $dataExplode[] = explode("=", $key); 
                 }
                 
-                for($i = 0; $i < sizeof($dataExplode); $i++){ //get values to create instance of technology
-                    for($j = 0; $j < sizeof($dataExplode[$i]); $j++){ 
-                        if($dataExplode[$i][$j] == 'name'){
-                            $name = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
-                        }else if($dataExplode[$i][$j] == 'categoryId'){
-                            if(is_numeric(htmlspecialchars(strip_tags($dataExplode[$i][$j+1])))){
-                               $categoryId = (int) htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
-                            }
-                        }
-                    }
-                }
+                $nameAndCategory = $this->setNameAndCategoryId($dataExplode); 
+                $name = $nameAndCategory[0];
+                $categoryId = $nameAndCategory[1];
 
                 //if technology name and category id are set 
                 if($name != null && ($categoryId != null && $categoryId > 0)){
@@ -171,15 +163,9 @@
                     $dataExplode[] = explode("=", $key); 
                 }
                 
-                for($i = 0; $i < sizeof($dataExplode); $i++){ //get values
-                    for($j = 0; $j < sizeof($dataExplode[$i]); $j++){ 
-                        if($dataExplode[$i][$j] == 'name'){
-                            $name = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
-                        }else if($dataExplode[$i][$j] == 'categoryId'){
-                            $categoryId = (int) htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
-                        }
-                    }
-                }
+                $nameAndCategory = $this->setNameAndCategoryId($dataExplode); 
+                $name = $nameAndCategory[0];
+                $categoryId = $nameAndCategory[1];
 
                 //create new technology
                 if($id != null){
@@ -237,7 +223,7 @@
                     
                     if($result[2] == 200){ //if result of SQL is OK then rename the temporary logo file
                         if(isset($data[1]['logo'])){ //new logo set
-                            unlink($oldLogo);
+                           if($oldLogo != ""){unlink($oldLogo);}
                             rename($temporaryFileFullPath, $logo);
                         }else{ //rename old logo
                             rename($oldLogo, $logo);
@@ -257,6 +243,23 @@
                 if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
+        }
+
+        private function setNameAndCategoryId($dataExplode){
+            $name = null;
+            $categoryId = null;
+            for($i = 0; $i < sizeof($dataExplode); $i++){ //get values to create instance of technology
+                for($j = 0; $j < sizeof($dataExplode[$i]); $j++){ 
+                    if($dataExplode[$i][$j] == 'name'){
+                        $name = htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
+                    }else if($dataExplode[$i][$j] == 'categoryId'){
+                        if(is_numeric(htmlspecialchars(strip_tags($dataExplode[$i][$j+1])))){
+                           $categoryId = (int) htmlspecialchars(strip_tags($dataExplode[$i][$j+1]));
+                        }
+                    }
+                }
+            }
+            return [$name, $categoryId];
         }
 
         public function setConnection(){ //set connection db

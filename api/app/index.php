@@ -35,6 +35,7 @@
     //DELETE
     $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryBy'], 'id:(\d+)', ['id'], "Supprimer une catégorie par son Id");
     $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Supprimer une catégorie par son nom");
+    $route->addRoute('DELETE','/technology/{id}', ['technology','deleteTechnology'], 'id:(\d+)', ['id'], "Supprimer une technologie par son Id");
 
     //required headers
     header("Access-Control-Allow-Origin: *"); //acces for all sites and devices
@@ -48,7 +49,7 @@
         if($response[0] === 'Router'){ //display all routes
             $allRoutes = $route->getAllRoutes();
             http_response_code(200);
-            echo json_encode(["Routes" => $allRoutes], JSON_UNESCAPED_UNICODE);
+            echo json_encode(["plus d'informations" => "https://github.com/JoeWebDev70/02-lab-php-api","Routes" => $allRoutes], JSON_UNESCAPED_UNICODE);
         }else if(file_exists('./Controllers/'.$response[0].'.php')){  //particular route 
             require_once './Controllers/'.$response[0].'.php'; //include file controller
             $class = $response[0]; //class name
