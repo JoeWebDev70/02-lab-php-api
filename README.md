@@ -13,9 +13,7 @@
         - entre accolade dans l'url :
             - ex : {id}, {name}
         - commençant par "?":
-            - ex : "?name=name&categoryId=id[&logo=directoryFile]"
-                - Obligatoire :  name=newName, categoryId=id ; 
-                - Facultatif : [logo=directoryFile&]
+            - ex : "?name=name&categoryId=id"
             Exemple : 
                 {
                     "methode": "PUT",
@@ -25,7 +23,7 @@
                         "?name=newName"
                     ]
                 },
-                URL => http://php-dev-2.online/category/Développement front end?name=Développement front end
+                URL => http://php-dev-2.online/category/Développement front end?name=Développement front-end
             
     - Les autres Arguments ne sont pas à renseigner (ils sont fixes et servent pour la requête).
         Exemple : 
@@ -55,20 +53,21 @@
 
     Exemples d'url :
         - http://php-dev-2.online/category?name=Développement front end
-        - http://php-dev-2.online/category?name=Développement front-end
+        - http://php-dev-2.online/technology?name=Javascript&categoryId=1 
+            ==>> logo en Form-data ou Binary
 
 ### PUT : 
 
     Exemples d'url :
-        - http://php-dev-2.online/category/Développement front end?name=Développement front end
-        - http://php-dev-2.online/category/5?name=Développement back end
+        - http://php-dev-2.online/category/5?name=Développement back end 
+        - http://php-dev-2.online/category/Développement front end?name=Développement front end 
+            ==>> par nom : valable seulement pour catégorie
 
 ### DELETE :
 
     Exemples d'url :
         - http://php-dev-2.online/category/5
-        - http://php-dev-2.online/category/Développement front end
-
+        - http://php-dev-2.online/category/Développement front end  ==>> par nom : valable seulement pour catégorie
 
 
 ## Routes

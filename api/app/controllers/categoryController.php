@@ -143,14 +143,8 @@
                 $arg = (int) $arg;
                 $label = "id";
             }
-            //data for instance of category
-            $categoryData = [
-                $label => $arg,
-                'deleted' => true,
-            ];
-            //create an instance of category
-            $category = new Category($categoryData);
-            $result = $this->categoryManager->deleteBy($arg, $category);
+           
+            $result = $this->categoryManager->deleteBy($arg);
             
             if(!$result[0] && $result[2] === 403){ //formating response   
                 for($i = 0; $i < sizeof($result[1]); $i++){

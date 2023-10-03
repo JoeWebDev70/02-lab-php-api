@@ -1,7 +1,4 @@
 <?php
-    //TODO : 
-    //voir spacename
-    //files logo à charger
 
     require_once './Router/Router.php';
 
@@ -20,12 +17,12 @@
     $route->addRoute('GET','/category/{name}/technologies', ['category','showCategoryTechnologiesBy'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir une catégorie par son nom si elle contient des technologies"); 
     $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id'], "Voir toutes les technologies, ordonnées par Id");
     $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name'], "Voir toutes les technologies, ordonnées par nom");
-    $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyById'], 'id:(\d+)', ['id'], "Voir une technologie par son Id");
-    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyByName'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir les technologies du même nom");
+    $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyBy'], 'id:(\d+)', ['id'], "Voir une technologie par son Id");
+    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir les technologies du même nom");
 
     //POST
     $route->addRoute('POST','/category', ['category','addCategory'], '', ['?name=name'], "Creer une nouvelle categorie");
-    $route->addRoute('POST','/technology', ['technology','addTechnology'], '', ['?name=name&[logo=directoryFile&]categoryId=id'], "Creer une nouvelle technologie");
+    $route->addRoute('POST','/technology', ['technology','addTechnology'], '', ['?name=name&categoryId=id'], "Creer une nouvelle technologie");
     
     //PUT
     $route->addRoute('PUT','/category/{id}', ['category','updateCategoryBy'], 'id:(\d+)', ['id', '?name=newName'], "Mettre à jour une catégorie par son Id");
@@ -44,7 +41,7 @@
     header("Access-Control-Max-Age: 3600"); //cache this information for a specified time = request time life : 1hour
     
     $response = $route->match();
-// var_dump($response);
+
     if(isset($response[0]) && $response[0] != false){  //route found
         if($response[0] === 'Router'){ //display all routes
             $allRoutes = $route->getAllRoutes();

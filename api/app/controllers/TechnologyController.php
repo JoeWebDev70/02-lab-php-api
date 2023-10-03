@@ -21,6 +21,7 @@
             $this->technologyManager = new TechnologyManager($this->connection); // create new instance of classe
         }
 
+        //add
         public function addTechnology($arg, $data){ 
             $name = null;
             $logo = "";
@@ -80,6 +81,7 @@
             }
         }
 
+        //get
         public function showTechnologies($orderBy = "id"){ //show all technologies
             $orderBy = strval($orderBy); //ensure is string
             if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
@@ -100,33 +102,13 @@
             }
         }
 
-        public function showTechnologyById($id){ 
-            $id = htmlspecialchars(strip_tags(strval($id))); //check and format arg
-            if(is_numeric($id)){//ensure is INT
-                $id = (int) $id;
-            }else{
-                return ["message" => "Erreur dans la requête", "http" => 400 ];
+        public function showTechnologyBy($arg){  
+            $arg = htmlspecialchars(strip_tags(strval($arg)));  //ensure is string
+            if(is_numeric($arg)){
+                $arg = (int) $arg;
             }
-            $result = $this->technologyManager->getById($id);
-            if($result[0]){ //formating response
-                for($i = 0; $i < sizeof($result[1]); $i++){
-                    $response[] = [
-                        'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
-                        'logo' => $result[1][$i][0]->getLogo(),
-                        'categoryId' => $result[1][$i][0]->getCategoryId(),
-                        'categoryName' => $result[1][$i][1],
-                    ];
-                }
-                return ["Technologies" => $response, "http" => $result[2]];
-            }else{
-                return ["message" => $result[1], "http" => $result[2]];
-            }
-        }
+            $result = $this->technologyManager->getBy($arg);
 
-        public function showTechnologyByName($name){  
-            $name = htmlspecialchars(strip_tags(strval($name)));  //ensure is string
-            $result = $this->technologyManager->getByName($name);
             if($result[0]){ //formating response
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
@@ -169,8 +151,8 @@
 
                 //create new technology
                 if($id != null){
-                    $oldTechnology = $this->technologyManager->getById($id);
-                    
+                    $oldTechnology = $this->technologyManager->getBy($id);
+
                     if($oldTechnology[0]){ //formating response
                         for($i = 0; $i < sizeof($oldTechnology[1]); $i++){
                             $oldName = $oldTechnology[1][$i][0]->getName();
@@ -208,7 +190,7 @@
                         }
 
                     }else{
-                        return ["message" => $result[1], "http" => $result[2]];
+                        return ["message" => $oldTechnology[1], "http" => $oldTechnology[2]];
                     }
 
                     $technologyData = [
@@ -239,10 +221,20 @@
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{
-                echo 'a';
                 if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
+        }
+
+        //delete
+        public function deleteTechnology($arg){
+            if(is_numeric(htmlspecialchars(strip_tags($arg)))){
+                $id = (int) htmlspecialchars(strip_tags($arg));
+            }else{
+                return ["message" => "Erreur dans la requête", "http" => 400 ];
+            }
+            $result = $this->technologyManager->delete($id);
+            return ["message" => $result[1], "http" => $result[2]];
         }
 
         private function setNameAndCategoryId($dataExplode){

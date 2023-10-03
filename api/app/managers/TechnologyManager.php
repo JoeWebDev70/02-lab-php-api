@@ -21,8 +21,7 @@
             if($logo == ""){$logo = null;} //pass null for not creating void
             $categoryId = $technology->getCategoryId();
 
-            //check if category exist
-            $result = $this->category->getBy($categoryId);
+            $result = $this->category->getBy($categoryId); //check if category exist
 
             if($result){ //category exist and wasn't deleted
                 //check if technology exist with this category 
@@ -91,106 +90,141 @@
             }
         }
 
-        public function getById($id){ //display a technology by its Id
-            //c.id = ? LIMIT 0,1 : where condition return first ligne found 
-            $sql = "SELECT t.id, t.name, t.logo, t.category_id, c.name AS 'category_name'
-                    FROM (technology AS t 
-                    LEFT JOIN category AS c ON c.id = t.category_id ) 
-                    WHERE t.deleted = 0 AND t.id = ? LIMIT 0,1";  
-            $sth = $this->connection->prepare($sql);
-            $sth->bindParam(1, $id, PDO::PARAM_INT);
-            try{ 
-                $sth->execute();
-                $data = $sth->fetch(PDO::FETCH_ASSOC); 
-                if($data){ //check if contain some data
-                    if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
-                    $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
-                    $result[] = [new Technology($dataTechnology), $data["category_name"]]; 
-                    return [true, $result, 200];
-                }else{
-                    return [false, "Erreur : Aucune catégorie existante", 404];
-                }  
-            }catch(PDOException $e){ //some error in sql execution
+        public function getBy($idOrName){ //display a technology by its Id
+            $result = $this->technologyExist($idOrName); //check if technology exist
+            if(!$result){ //doesn't exist
+                return [false, "Erreur : Aucune technologie existante", 404];
+            }else if($result == "erreur execution"){//some error in sql execution
                 return [false, "Erreur : Dans l'execution de la requête", 400];
-            }  
-        }
-
-        public function getByName($name){ //display technologies which have the same name
-            $displayResult = false; //bool for check if there is something to display
-            $sql = "SELECT t.id, t.name, t.logo, t.category_id, c.name AS 'category_name'
-                    FROM (technology AS t 
-                    LEFT JOIN category AS c ON c.id = t.category_id ) 
-                    WHERE t.deleted = 0 AND t.name = :name";  
-            $sth = $this->connection->prepare($sql);
-            $sth->bindParam(':name', $name, PDO::PARAM_STR);
-            $sth->execute();
-            try{ 
-                while($data = $sth->fetch(PDO::FETCH_ASSOC)){ //check if contain some data
-                    if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
-                    $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
-                    $response[] = [new Technology($dataTechnology), $data["category_name"]];
-                    $displayResult = true;  
+            }else{ //exist
+                for($i = 0; $i < sizeof($result); $i ++){
+                    if($result[$i]["deleted"] == 0){ //wasn't deleted
+                        if($result[$i]["logo"] == null){$logo = "";}else{$logo = $result[$i]["logo"];}
+                        $dataTechnology = ["id" => $result[$i]["id"], "name" => $result[$i]["name"], "logo" => $logo, "categoryId" => $result[$i]["category_id"]];
+                        $response[] = [new Technology($dataTechnology), $result[$i]["category_name"]]; 
+                    }
                 }
-                if($displayResult){
-                    return [true, $response, 200];
-                }else{
-                    return [false, "Erreur : Aucune catégorie existante", 404];
-                } 
-            }catch(PDOException $e){ //some error in sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
-            }     
+                return [true, $response, 200];
+            }
         }
 
         //update
         public function update($id, Technology $technology){ //update category searched by id
-            //check if technology exist did in controller and get old informations
+            //in controller : check if technology exist and get old informations
             //get data to create technology
             $name = $technology->getName(); 
             $logo = $technology->getLogo(); 
-            
             if($logo == ""){$logo = null;} //pass null for not creating void
             $categoryId = $technology->getCategoryId();
 
-            //check if category exist
-            $result = $this->category->getBy($categoryId);
-   
-            if($result){ //category exist and wasn't deleted
-                //check if technology exist with this category 
-                $response = $this->checkIfExistWithCategory($name, $categoryId);
-                $update = false;
-                if(!$response){ //doesn't exist yet with this category then update in db
-                    $update = true;
-                }else if($response == "erreur execution"){ //some errore in check if exist
-                    return [false, "Erreur : Dans l'execution de la requête", 400];
-                }else{ //exist in this category and wasn't deleted 
-                    if($id == $response["id"]){$update = true;} //if technology id is the same then update
-                } 
+            $technologyExist = $this->technologyExist($id); //check if technology exist
+            
+            if(!$technologyExist){ //technology doesn't exist
+                return [false, "Erreur : Aucune technologie existante", 404];
+            }else if($technologyExist == "erreur execution"){//some error in sql execution
+                return [false, "Erreur : Dans l'execution de la requête", 400];
+            }else{ //technology exist
+                if($technologyExist[0]["deleted"] == 0){ //exist and wasn't deleted
+                    $result = $this->category->getBy($categoryId); //check if category exist 
+        
+                    if($result){ //category exist and wasn't deleted - CF. public function getBy($idOrName) in CategoryManager
+                        //check if technology exist with this category 
+                        $response = $this->checkIfExistWithCategory($name, $categoryId);
+                        $update = false;
 
-                if($update){
-                    
-                    $sql = "UPDATE technology 
-                            SET name = :name, logo = :logo, category_id = :categoryId 
-                            WHERE id = :id ";
+                        if(!$response){ //doesn't exist yet with this category then update in db
+                            $update = true;
+                        }else if($response == "erreur execution"){ //some errore in check if exist
+                            return [false, "Erreur : Dans l'execution de la requête", 400];
+                        }else{ //exist in this category and wasn't deleted 
+                            if($id == $response["id"]){$update = true;} //if technology id is the same then update
+                        } 
+
+                        if($update){
+                            $sql = "UPDATE technology 
+                                    SET name = :name, logo = :logo, category_id = :categoryId 
+                                    WHERE id = :id ";
+                            $sth = $this->connection->prepare($sql);
+                            $sth->bindParam(':id', $id, PDO::PARAM_INT);
+                            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                            $sth->bindParam(':logo', $logo, PDO::PARAM_STR);
+                            $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+                            try{
+                                $sth->execute(); 
+                                return [true, 'Succès : Technology modifiée', 200];
+                            }catch(PDOException $e){ //some error in sql execution
+                                return [false, "Erreur : Dans l'execution de la requête", 400];
+                            } 
+                        }else{
+                            return [false, 'Erreur : Technology déjà existante avec cette Catégorie', 403];
+                        }
+                        
+                    }else if($result[2] == 400){ //some error in SQL execution
+                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                    }else{ //category doesn't exist
+                        return [false, "Erreur : La catégorie est inexistante", 404];
+                    }
+                }else{ //exist but was deleted
+                    return [false, "Erreur : Aucune technologie existante", 404];
+                }
+            }
+        }
+
+        //delete = update column deleted set 1
+        public function delete($id){
+            $result = $this->technologyExist($id);
+            if(!$result){ //technology doesn't exist
+                return [false, "Erreur : Aucune technologie existante", 404];
+            }else if($result == "erreur execution"){//some error in sql execution
+                return [false, "Erreur : Dans l'execution de la requête", 400];
+            }else{ //technology exist
+                if($result[0]["deleted"] == 0){ //exist and wasn't deleted
+                    $sql = "UPDATE technology SET deleted = 1 WHERE id = :id ";
                     $sth = $this->connection->prepare($sql);
                     $sth->bindParam(':id', $id, PDO::PARAM_INT);
-                    $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                    $sth->bindParam(':logo', $logo, PDO::PARAM_STR);
-                    $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
                     try{
                         $sth->execute(); 
-                        return [true, 'Succès : Technology modifiée', 200];
+                        return [true, 'Succès : Technology supprimée', 200];
                     }catch(PDOException $e){ //some error in sql execution
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     } 
-                }else{
-                    return [false, 'Erreur : Technology déjà existante avec cette Catégorie', 403];
+                }else{ //exist but was deleted
+                    return [false, "Erreur : Aucune technologie existante", 404];
+                }
+            }
+        }
+
+        private function technologyExist($idOrName){
+            $displayResult = false; //bool for check if there is something to display
+            if(is_string($idOrName)){
+                $sql = "SELECT t.id, t.name, t.logo, t.deleted, t.category_id, c.name AS 'category_name'
+                        FROM (technology AS t 
+                        LEFT JOIN category AS c ON c.id = t.category_id ) 
+                        WHERE t.name = :name";  
+                $sth = $this->connection->prepare($sql);
+                $sth->bindParam(":name", $idOrName, PDO::PARAM_STR);
+            }else{
+                $sql = "SELECT t.id, t.name, t.logo, t.deleted, t.category_id, c.name AS 'category_name'
+                        FROM (technology AS t 
+                        LEFT JOIN category AS c ON c.id = t.category_id ) 
+                        WHERE t.id = :id";  
+                $sth = $this->connection->prepare($sql);
+                $sth->bindParam(":id", $idOrName, PDO::PARAM_INT);
+            }
+            
+            try{ 
+                $sth->execute();
+                while($data = $sth->fetch(PDO::FETCH_ASSOC)){
+                    $result[] = $data;
+                    $displayResult = true;  
                 }
                 
-            }else if($result[2] == 400){
-                return [false, "Erreur : Dans l'execution de la requête", 400];
-            }else{ //category does't exist
-                return [false, "Erreur : Aucune catégorie existante", 404];
-            }
+                if($displayResult){return $result;
+                }else{return false;} 
+
+            }catch(PDOException $e){ //some error in sql execution
+                return "erreur execution";
+            }     
         }
 
         private function checkIfExistWithCategory($name, $categoryId){
@@ -207,7 +241,6 @@
                 return "erreur execution";
             }
         }
-
 
         public function setConnection($connection){
             $this->connection = $connection ;

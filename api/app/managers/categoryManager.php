@@ -163,13 +163,13 @@
         }
        
         //delete = pass false/1 in column deleted
-        public function deleteBy($arg, Category $category){ //delete category by id or name
+        public function deleteBy($arg){ //delete category by id or name 
             $result = $this->categoryExist($arg); //check if exist
             
             if($result){ //category exist in db
                 if ($result["deleted"] == 0){ //name exist wasn't deleted 
                     $id = $result["id"];
-                    $response = $this->getTechnologies($id);
+                    $response = $this->getTechnologies($id); //contain technologies then display list
                     if($response){
                         return [false, $response[1], 403];
                     }else if($response == "erreur d'execution"){

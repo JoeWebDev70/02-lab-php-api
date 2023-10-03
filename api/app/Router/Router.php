@@ -91,8 +91,9 @@
             $temporaryFilePath = $uploadDir.$temporaryFileName;
             if(is_array($dataFile)){ //file get by $_FILE
                 //get the extension file
-                $fileTmpExt =  $_FILES['logo']['type']; 
-                $fileTmpExt = explode("/",$fileTmpExt);
+                $fileTmpType =  $_FILES['logo']['type']; 
+                $extensionExplode = explode("+",$fileTmpType);
+                $fileTmpExt = explode("/",$extensionExplode[0]);
                 $fileExt = strtolower($fileTmpExt[1]);
                 $tmpName = $_FILES['logo']['tmp_name'];
                 //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
@@ -104,8 +105,9 @@
                 if($dataFile != ""){ //if contains data
                     file_put_contents($temporaryFilePath, $dataFile); //store the file temporarly with always the same name
                     //get the extension file
-                    $fileTmpExt = mime_content_type($temporaryFilePath);
-                    $fileTmpExt = explode("/",$fileTmpExt);
+                    $fileTmpType = mime_content_type($temporaryFilePath);
+                    $extensionExplode = explode("+",$fileTmpType);
+                    $fileTmpExt = explode("/",$extensionExplode[0]);
                     $fileExt = strtolower($fileTmpExt[1]);
                     //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
                     $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
