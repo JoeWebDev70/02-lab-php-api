@@ -1,13 +1,12 @@
 <?php
-    //entities = models => managed by TechnologyManager
+    //entities = models => managed by ResourceManager
 
-    class Technology{
+    class Resource{
         //attributes         
         private int $id;
-        private string $name;
-        private string $logo;
-        private bool $deleted; 
-        private int $categoryId;
+        private string $url;
+        private bool $deleted;    
+        private int $technologyId;
 
         //METHODS
         //constructor
@@ -25,18 +24,12 @@
             }
         }
 
-        public function setName($name){
-            if(is_string($name)){ //ensure is string
-                $this->name = $name;
+        public function setUrl($url){
+            if(is_string($url)){ //ensure is string
+                $this->url = $url;
             }
         }
-
-        public function setLogo($logo){
-            if(is_string($logo)){ //ensure is string
-                $this->logo = $logo;
-            }
-        }
-
+        
         public function setDeleted($deleted){
             //ensure is tinyint (boolean) 0 or 1 
             // Possible return values:
@@ -49,10 +42,10 @@
             }
         }
         
-        public function setCategoryId($categoryId){
-            $categoryId = (int) $categoryId; //ensure is INT
-            if($categoryId > 0){ //ensure is stricly positive number
-                $this->categoryId = $categoryId;
+        public function setTechnologyId($technologyId){
+            $technologyId = (int) $technologyId; //ensure is INT
+            if($technologyId > 0){ //ensure is stricly positive number
+                $this->technologyId = $technologyId;
             }
         }
         
@@ -71,20 +64,16 @@
             return $this->id;
         }
         
-        public function getName(){
-            return $this->name;
-        }
-        
-        public function getLogo(){
-            return $this->logo;
+        public function getUrl(){
+            return $this->url;
         }
 
         public function getDeleted(){
             return $this->deleted;
         }
         
-        public function getCategoryId(){
-            return $this->categoryId;
+        public function getTechnologyId(){
+            return $this->technologyId;
         }
     }
    

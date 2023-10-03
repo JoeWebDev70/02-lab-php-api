@@ -61,7 +61,7 @@
                 if($displayResult){  //exist some category then display result
                     return [true, $response, 200];
                 }else{ //no category exist
-                    return [false, "Erreur : Aucune catégorie existante", 404];
+                    return [false, "Erreur : Catégories inexistantes", 404];
                 }
             }catch(PDOException $e){  //some error in the sql execution
                 return [false, "Erreur : Dans l'execution de la requête", 400];
@@ -101,12 +101,12 @@
                     $response = new Category($result);
                     return [true, $response, 200];
                 }else{  //exist but was deleted
-                    return [false, "Erreur : Aucune catégorie existante", 404];
+                    return [false, "Erreur : Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some error in chek if exist
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Aucune catégorie existante", 404];
+                return [false, "Erreur : Catégorie inexistante", 404];
             }
         }
 
@@ -125,7 +125,7 @@
                         return [false, "La catégorie ".$result["id"] ." : ". $result["name"] ." ne contient pas de technologie", 404];
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Aucune catégorie existante", 404];
+                    return [false, "Erreur : Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
                 return [false, "Erreur : Dans l'execution de la requête", 400];
@@ -153,12 +153,12 @@
                         return [false, "Erreur : Dans l'execution de la requête", 400];
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Aucune catégorie existante", 404];
+                    return [false, "Erreur : Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Aucune catégorie existante", 404];
+                return [false, "Erreur : Catégorie inexistante", 404];
             }
         }
        
@@ -186,12 +186,12 @@
                         }
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Aucune catégorie existante", 404];
+                    return [false, "Erreur : Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
                 return [false, "Erreur : Dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Aucune catégorie existante", 404];
+                return [false, "Erreur : Catégorie inexistante", 404];
             }
         }
 

@@ -3,6 +3,11 @@
 ## Effectuer les requêtes
 
 ### Infos Diverses:
+
+    - Les catégories sont des containers, elles sont uniques et ne peuvent être supprimées si elles sont associées à des technologies;
+
+    - Les technologies sont unique par catégorie;
+
     - Les fichiers images = logos:
         - methode POST : sont a insérér dans Body -> form-data ou binary;
         - methode PUT : sont a insérér dans Body -> binary;
@@ -34,9 +39,6 @@
                     "name"
                 ]
             },
-    
-    - Les catégories sont uniques et ne peuvent être supprimées si elles sont associées à des technologies;
-    - Les technologies sont unique par catégorie;
 
 
 ### GET : 
@@ -67,7 +69,8 @@
 
     Exemples d'url :
         - http://php-dev-2.online/category/5
-        - http://php-dev-2.online/category/Développement front end  ==>> par nom : valable seulement pour catégorie
+        - http://php-dev-2.online/category/Développement front end  
+            ==>> par nom : valable seulement pour catégorie
 
 
 ## Routes
@@ -106,3 +109,8 @@
 504 Gateway Timeout : Le serveur agit comme une passerelle ou un proxy, et il n'a pas pu obtenir une réponse à temps de la part du serveur en amont.
 
 505 HTTP Version Not Supported : La version du protocole HTTP utilisée dans la requête n'est pas prise en charge par le serveur.
+
+
+#### Liens vers le projet
+
+Trouver le projet dans ce <a href ="https://github.com/JoeWebDev70/02-lab-php-api_project">repository</a>

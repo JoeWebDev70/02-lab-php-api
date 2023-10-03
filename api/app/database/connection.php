@@ -21,7 +21,7 @@
             $this->dsn = "mysql:host=" . $this->host . ";dbname=" . $this->dbname . ";charset=utf8";
             $this->user = getenv("MYSQL_USER");
             $this->password = getenv("MYSQL_PASSWORD");
-            
+            //set connection
             $this->connectionDb();
         }   
 
@@ -62,11 +62,12 @@
             return self::$instance;
         }  
 
+        //getter
         public function getConnection(){
             return $this->connection;
         }
 
-
+        //set connection
         private function connectionDb(){
             try{ //try to connect
                 //create connection db ==> PDO object

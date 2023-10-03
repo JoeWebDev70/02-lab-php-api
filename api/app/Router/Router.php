@@ -9,7 +9,6 @@
             'resource' => 'ResourceController',
         ];
 
-
         //method
         public function addRoute($method, $pattern, $handler, $routeRegex, $arg = [], $routeExplanation = ""){
             $this->routes[] = [$method, $pattern, $handler, $routeRegex, $arg, $routeExplanation];
@@ -17,26 +16,25 @@
 
         public function match(){ //match the route requested
             $url = urldecode($_SERVER['REQUEST_URI']);  //urldecode for spaces and specials char
-            $method = $_SERVER['REQUEST_METHOD'];
-            
+            $method = $_SERVER['REQUEST_METHOD']; //get method
+            $data = []; // for getting data in url if set
+
             //check if url is compatible with method
             if(($method === "POST" || $method === "PUT") && str_contains($url, "?")){ //explode data if it's necessary
                 $dataExplode = explode("?", $url);
-                $url = $dataExplode[0];
-                $data[] = $dataExplode[1];
+                $url = $dataExplode[0]; //get url for matching
+                $data[] = $dataExplode[1]; //get data set in url
             }else if((($method === "GET" || $method === "DELETE") && str_contains($url, "?"))
-                || (($method === "POST" || $method === "PUT") && !str_contains($url, "?"))){
+                || (($method === "POST" || $method === "PUT") && !str_contains($url, "?"))){ //not allowed
                 return [false, "message" => "Erreur : Methode non autorisée", "http" => 405];
-            }else{
-                $data = [];
             }
             
-            foreach($this->routes as $route){
+            foreach($this->routes as $route){ //loop on routes for matching
                 //Assign variables as if they were an array
                 list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs) = $route;
                 
                 $regex = explode(":", $routeRegex);//explode to get what and regex to set
-                if(sizeof($regex) > 1){
+                if(sizeof($regex) > 1){ //replace id by number and name by letters
                     $routePattern = str_replace("{".$regex[0]."}", $regex[1], $routePattern);
                 }
                 $routePattern = str_replace("/", "\/", $routePattern); //replace spaces
@@ -46,9 +44,9 @@
                     array_shift($matches);
 
                     if(sizeof($matches) > 0){ //pass arguments for functions
-                        $arg = $matches;
+                        $arg = $matches; //need to be set by user
                     }else{
-                        $arg = $routeArgs;
+                        $arg = $routeArgs; //set by default
                     }
 
                     //get controller name
@@ -59,10 +57,10 @@
                     if(($method === "POST" || $method === "PUT") && $controller == "TechnologyController"){
                         if (isset($_FILES['logo'])) { //check if contain some file
                             $dataTempLogo = $this->gestionFile($_FILES['logo']);
-                        }else {
+                        }else { //or data
                             $dataTempLogo = $this->gestionFile(file_get_contents('php://input'));
                         }
-
+                        //set in data array to send in functions
                         if($dataTempLogo){$data[] = ["logo" => $dataTempLogo];}
                     }
 
@@ -74,9 +72,8 @@
             return [false, "message" => "Erreur : Route non trouvée", "http" => 404];
             
         }
-                
+        
         public function getAllRoutes(){ //display all routes and explaination
-            
             foreach($this->routes as $route){
                 //Assign variables as if they were an array
                 list($routeMethod, $routePattern, $routeHandler, $routeRegex, $routeArgs, $routeExplanation) = $route;
@@ -86,6 +83,7 @@
         }
         
         private function gestionFile($dataFile){ //logo file gestion
+            //create a temporary file for treating data after
             $uploadDir = './resources_logo/'; 
             $temporaryFileName = 'temporaryLogo';
             $temporaryFilePath = $uploadDir.$temporaryFileName;
@@ -117,7 +115,6 @@
                 }
             }
             return false;
-
         }
 
 

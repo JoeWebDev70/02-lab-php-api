@@ -5,8 +5,7 @@
     $route = new Router();
 
     //GET
-    //TODO voir pour explaination of routes to display and link to Github Readme
-    $route->addRoute('GET','/', ['all','getAllRoutes'], '', [], "Toutes les routes disponibles");
+    $route->addRoute('GET','/', ['all','getAllRoutes'], '', [], "Voir toutes les routes disponibles");
     $route->addRoute('GET','/categories', ['category','showCategories'], '', ['id'], "Voir toutes les catégories, ordonnées par Id");
     $route->addRoute('GET','/categories/name', ['category','showCategories'], '', ['name'], "Voir toutes les catégories, ordonnées par nom");
     $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id'], "Voir toutes les catégories qui contiennent des technologies, ordonnées par Id");
@@ -18,21 +17,27 @@
     $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id'], "Voir toutes les technologies, ordonnées par Id");
     $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name'], "Voir toutes les technologies, ordonnées par nom");
     $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyBy'], 'id:(\d+)', ['id'], "Voir une technologie par son Id");
-    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir les technologies du même nom");
-
+    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir toutes les technologies du même nom");
+    $route->addRoute('GET','/resources', ['resource','showResources'], '', ['id'], "Voir toutes les ressources, ordonnées par Id");
+    $route->addRoute('GET','/resource/{id}', ['resource','showResource'], 'id:(\d+)', ['id'], "Voir une ressource par son Id");
+    
     //POST
     $route->addRoute('POST','/category', ['category','addCategory'], '', ['?name=name'], "Creer une nouvelle categorie");
     $route->addRoute('POST','/technology', ['technology','addTechnology'], '', ['?name=name&categoryId=id'], "Creer une nouvelle technologie");
+    $route->addRoute('POST','/resource', ['resource','addResource'], '', ['?technologyId=id&url=url'], "Creer une nouvelle ressource pour une technologie");
     
     //PUT
     $route->addRoute('PUT','/category/{id}', ['category','updateCategoryBy'], 'id:(\d+)', ['id', '?name=newName'], "Mettre à jour une catégorie par son Id");
     $route->addRoute('PUT','/category/{name}', ['category','updateCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name', '?name=newName'], "Mettre à jour une catégorie par son nom");
     $route->addRoute('PUT','/technology/{id}', ['technology','updateTechnology'], 'id:(\d+)', ['id', '?name=newName'], "Mettre à jour une technologie par son Id");
+    $route->addRoute('PUT','/resource/{id}', ['resource','updateResource'], 'id:(\d+)', ['id', '?url=newUrl&technologyId=newTechnologyId'], "Mettre à jour une ressource par son Id");
     
     //DELETE
     $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryBy'], 'id:(\d+)', ['id'], "Supprimer une catégorie par son Id");
     $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Supprimer une catégorie par son nom");
     $route->addRoute('DELETE','/technology/{id}', ['technology','deleteTechnology'], 'id:(\d+)', ['id'], "Supprimer une technologie par son Id");
+    $route->addRoute('DELETE','/resource/{id}', ['resource','deleteResource'], 'id:(\d+)', ['id'], "Supprimer une ressource par son Id");
+    
 
     //required headers
     header("Access-Control-Allow-Origin: *"); //acces for all sites and devices
@@ -67,14 +72,14 @@
             //JSON_UNESCAPED_UNICODE : option to display correct words without unicode
             http_response_code($reply["http"]);
             echo json_encode([$replyName  => $reply[$replyName ]], JSON_UNESCAPED_UNICODE);
-            
         }
     }else{ //route not found
         http_response_code($response["http"]);
         echo json_encode(["route match" => $response["message"]]);
     }
 
-    function getReplyName($reply){ //return the name of message to display
+    //return the name of message to display
+    function getReplyName($reply){ 
         if(isset($reply["message"])){
             return "message";
         }else if(isset($reply["Categories"])){
@@ -83,6 +88,8 @@
             return "Technologies par Catégorie";
         }else if(isset($reply["Technologies"])){
             return "Technologies";
+        }else if(isset($reply["Ressources"])){
+            return "Ressources";
         }
     }
 

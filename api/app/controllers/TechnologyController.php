@@ -35,6 +35,7 @@
                     $dataExplode[] = explode("=", $key); 
                 }
                 
+                //set data 
                 $nameAndCategory = $this->setNameAndCategoryId($dataExplode); 
                 $name = $nameAndCategory[0];
                 $categoryId = $nameAndCategory[1];
@@ -53,7 +54,8 @@
                             $logo = $fileFullPath;
                         }
                     }
- 
+                    
+                    //create technology instance
                     $technologyData = [
                         'name' => $name,
                         'logo' => $logo,
@@ -64,19 +66,19 @@
                     $result = $this->technologyManager->add($technology);
                     
                     if($result[2] == 201){ //if result of SQL is OK then rename the temporary logo file
-                        if(isset($data[1]['logo'])){rename($temporaryFileFullPath, $fileFullPath);}
+                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){rename($temporaryFileFullPath, $fileFullPath);}
                     }else{ //delete it
-                        if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                     }
 
                     return ["message" => $result[1], "http" => $result[2]];
                         
                 }else{ //Miss name or category id  to create = delete temporary file and send error message
-                    if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                    if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{ //some error in technologie data send
-                if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
         }
@@ -145,12 +147,14 @@
                     $dataExplode[] = explode("=", $key); 
                 }
                 
+                //set data
                 $nameAndCategory = $this->setNameAndCategoryId($dataExplode); 
                 $name = $nameAndCategory[0];
                 $categoryId = $nameAndCategory[1];
 
-                //create new technology
+                
                 if($id != null){
+                    //get old data
                     $oldTechnology = $this->technologyManager->getBy($id);
 
                     if($oldTechnology[0]){ //formating response
@@ -193,6 +197,7 @@
                         return ["message" => $oldTechnology[1], "http" => $oldTechnology[2]];
                     }
 
+                    //create new instance of technology
                     $technologyData = [
                         'id' => $id,
                         'name' => $name,
@@ -204,24 +209,24 @@
                     $result = $this->technologyManager->update($id, $technology);
                     
                     if($result[2] == 200){ //if result of SQL is OK then rename the temporary logo file
-                        if(isset($data[1]['logo'])){ //new logo set
+                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){ //new logo set
                            if($oldLogo != ""){unlink($oldLogo);}
                             rename($temporaryFileFullPath, $logo);
                         }else{ //rename old logo
                             rename($oldLogo, $logo);
                         }
                     }else{ //delete the new logo set
-                        if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                     }
 
                     return ["message" => $result[1], "http" => $result[2]];
                 
                 }else{
-                    if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                    if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{
-                if(isset($data[1]['logo'])){unlink($temporaryFileFullPath);}
+                if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
         }
