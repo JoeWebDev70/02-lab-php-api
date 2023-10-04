@@ -49,7 +49,7 @@
                 foreach($result[1] as $category){
                     $response[] = [
                         'id' => $category->getId(),  
-                        'name' => $category->getName(),
+                        'name' => htmlspecialchars_decode($category->getName()),
                     ];
                 }
                 return ["Categories" => $response, "http" => $result[2]];
@@ -67,9 +67,9 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
+                        'name' => htmlspecialchars_decode($result[1][$i][0]->getName()),
                         'technologies_id' => $result[1][$i][1],
-                        'technologies_names' => $result[1][$i][2],
+                        'technologies_names' => htmlspecialchars_decode($result[1][$i][2]),
                     ];
                 }
 
@@ -89,7 +89,7 @@
             if($result[0]){ //formating data
                 $response[] = [
                     'id' => $result[1]->getId(),  
-                    'name' => $result[1]->getName(),
+                    'name' => htmlspecialchars_decode($result[1]->getName()),
                 ];
                 return ["Categories" => $response, "http" => $result[2]];
             }else{
@@ -107,9 +107,9 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
+                        'name' => htmlspecialchars_decode($result[1][$i][0]->getName()),
                         'technologies_id' => $result[1][$i][1],
-                        'technologies_names' => $result[1][$i][2],
+                        'technologies_names' => htmlspecialchars_decode($result[1][$i][2]),
                     ];
                 }
                 return ["Technologies par Catégorie" => $response, "http" => $result[2]];
@@ -150,9 +150,9 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
+                        'name' => htmlspecialchars_decode($result[1][$i][0]->getName()),
                         'technologies_id' => $result[1][$i][1],
-                        'technologies_names' => $result[1][$i][2],
+                        'technologies_names' => htmlspecialchars_decode($result[1][$i][2]),
                     ];
                 }
                 return ["message" => ["Erreur : Technologies présentent dans la Catégorie", $response], "http" => $result[2]]; 

@@ -72,9 +72,9 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'url' => $result[1][$i][0]->getUrl(),
+                        'url' => htmlspecialchars_decode($result[1][$i][0]->getUrl()),
                         'technologyId' => $result[1][$i][0]->getTechnologyId(),
-                        'technologyName' => $result[1][$i][1],
+                        'technologyName' => htmlspecialchars_decode($result[1][$i][1]),
                     ];
                 }
                 return ["Ressources" => $response, "http" => $result[2]];
@@ -91,9 +91,9 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'url' => $result[1][$i][0]->getUrl(),
+                        'url' => htmlspecialchars_decode($result[1][$i][0]->getUrl()),
                         'technologyId' => $result[1][$i][0]->getTechnologyId(),
-                        'technologyName' => $result[1][$i][1],
+                        'technologyName' => htmlspecialchars_decode($result[1][$i][1]),
                     ];
                 }
                 return ["Ressources" => $response, "http" => $result[2]];
@@ -118,7 +118,7 @@
                         for($i = 0; $i < sizeof($result[1]); $i++){
                             $response[] = [
                                 'id' => $result[1][$i][0]->getId(),  
-                                'url' => $result[1][$i][0]->getUrl(),
+                                'url' => htmlspecialchars_decode($result[1][$i][0]->getUrl()),
                             ];
                         }
                         return ["Ressources" => $response, "http" => $result[2]];

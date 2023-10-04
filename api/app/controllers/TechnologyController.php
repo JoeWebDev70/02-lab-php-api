@@ -93,10 +93,10 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
+                        'name' => htmlspecialchars_decode($result[1][$i][0]->getName()),
                         'logo' => $result[1][$i][0]->getLogo(),
                         'categoryId' => $result[1][$i][0]->getCategoryId(),
-                        'categoryName' => $result[1][$i][1],
+                        'categoryName' => htmlspecialchars_decode($result[1][$i][1]),
                         'resources' => $result[1][$i][2],
                     ];
                 }
@@ -118,10 +118,10 @@
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
                         'id' => $result[1][$i][0]->getId(),  
-                        'name' => $result[1][$i][0]->getName(),
+                        'name' => htmlspecialchars_decode($result[1][$i][0]->getName()),
                         'logo' => $result[1][$i][0]->getLogo(),
                         'categoryId' => $result[1][$i][0]->getCategoryId(),
-                        'categoryName' => $result[1][$i][1],
+                        'categoryName' => htmlspecialchars_decode($result[1][$i][1]),
                         'resources' => $result[1][$i][2],
                     ];
                 }

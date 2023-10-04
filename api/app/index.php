@@ -12,13 +12,13 @@
     $route->addRoute('GET','/categories/technologies', ['category','showCategoriesTechnologies'], '', ['id'], "Voir toutes les catégories qui contiennent des technologies, ordonnées par Id");
     $route->addRoute('GET','/categories/name/technologies', ['category','showCategoriesTechnologies'], '', ['name'], "Voir toutes les catégories qui contiennent des technologies, ordonnées par nom");
     $route->addRoute('GET','/category/{id}', ['category','showCategoryBy'], 'id:(\d+)', ['id'], "Voir une catégorie par son Id");
-    $route->addRoute('GET','/category/{name}', ['category','showCategoryBy'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir une catégorie par son nom"); 
+    $route->addRoute('GET','/category/{name}', ['category','showCategoryBy'],'name:([a-zA-Z0-9À-ÿ \-_\']+)', ['name'], "Voir une catégorie par son nom"); 
     $route->addRoute('GET','/category/{id}/technologies', ['category','showCategoryTechnologiesBy'], 'id:(\d+)', ['id'], "Voir une catégorie par son Id si elle contient des technologies");
-    $route->addRoute('GET','/category/{name}/technologies', ['category','showCategoryTechnologiesBy'],'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir une catégorie par son nom si elle contient des technologies"); 
+    $route->addRoute('GET','/category/{name}/technologies', ['category','showCategoryTechnologiesBy'],'name:([a-zA-Z0-9À-ÿ \-_\']+)', ['name'], "Voir une catégorie par son nom si elle contient des technologies"); 
     $route->addRoute('GET','/technologies', ['technology','showTechnologies'], '', ['id'], "Voir toutes les technologies, ordonnées par Id");
     $route->addRoute('GET','/technologies/name', ['technology','showTechnologies'], '', ['name'], "Voir toutes les technologies, ordonnées par nom");
     $route->addRoute('GET','/technology/{id}', ['technology','showTechnologyBy'], 'id:(\d+)', ['id'], "Voir une technologie par son Id");
-    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir toutes les technologies du même nom");
+    $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_\']+)', ['name'], "Voir toutes les technologies du même nom");
     $route->addRoute('GET','/resources', ['resource','showResources'], '', ['id'], "Voir toutes les ressources, ordonnées par Id");
     $route->addRoute('GET','/resource/{id}', ['resource','showResource'], 'id:(\d+)', ['id'], "Voir une ressource par son Id");
     $route->addRoute('GET','/resource/technology/{id}', ['resource','showResourcesFor'], 'id:(\d+)', ['id'], "Voir les ressources d'une technologie par son Id");
@@ -30,13 +30,13 @@
     
     //PUT
     $route->addRoute('PUT','/category/{id}', ['category','updateCategoryBy'], 'id:(\d+)', ['id', '?name=newName'], "Mettre à jour une catégorie par son Id");
-    $route->addRoute('PUT','/category/{name}', ['category','updateCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name', '?name=newName'], "Mettre à jour une catégorie par son nom");
+    $route->addRoute('PUT','/category/{name}', ['category','updateCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_\']+)', ['name', '?name=newName'], "Mettre à jour une catégorie par son nom");
     $route->addRoute('PUT','/technology/{id}', ['technology','updateTechnology'], 'id:(\d+)', ['id', '?name=newName'], "Mettre à jour une technologie par son Id");
     $route->addRoute('PUT','/resource/{id}', ['resource','updateResource'], 'id:(\d+)', ['id', '?url=newUrl&technologyId=newTechnologyId'], "Mettre à jour une ressource par son Id");
     
     //DELETE
     $route->addRoute('DELETE','/category/{id}', ['category','deleteCategoryBy'], 'id:(\d+)', ['id'], "Supprimer une catégorie par son Id");
-    $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Supprimer une catégorie par son nom");
+    $route->addRoute('DELETE','/category/{name}', ['category','deleteCategoryBy'], 'name:([a-zA-Z0-9À-ÿ \-_\']+)', ['name'], "Supprimer une catégorie par son nom");
     $route->addRoute('DELETE','/technology/{id}', ['technology','deleteTechnology'], 'id:(\d+)', ['id'], "Supprimer une technologie par son Id");
     $route->addRoute('DELETE','/resource/{id}', ['resource','deleteResource'], 'id:(\d+)', ['id'], "Supprimer une ressource par son Id");
     

@@ -14,7 +14,7 @@
         - methode POST : sont a insérér dans Body -> form-data ou binary;
         - methode PUT : sont a insérér dans Body -> binary;
         
-    - Caractères autorisés pour les noms : a-zA-Z0-9À-ÿ -_
+    - Caractères autorisés pour les noms : a-zA-Z0-9À-ÿ -_ '
 
     - Les Arguments à renseigner :
         - entre accolade dans l'url :
