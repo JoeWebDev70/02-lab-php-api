@@ -87,7 +87,7 @@ CREATE TABLE `technology` (
   PRIMARY KEY (`id`),
   KEY `fk_technology_category_idx` (`category_id`),
   CONSTRAINT `fk_technology_category` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +96,7 @@ CREATE TABLE `technology` (
 
 LOCK TABLES `technology` WRITE;
 /*!40000 ALTER TABLE `technology` DISABLE KEYS */;
-INSERT INTO `technology` VALUES (1,'HTML5','http//php-dev-2.online/resources_logo/HTML5_1.png',0,1),(2,'CSS','http//php-dev-2.online/resources_logo/CSS_1.png',0,1),(3,'SQL','',0,1),(4,'PHP','http//php-dev-2.online/resources_logo/PHP_1.png',0,1),(5,'React JS','',0,2),(6,'Angular','',0,2),(7,'Boostrap','http//php-dev-2.online/resources_logo/Boostrap_2.png',0,2),(8,'MySQL','http//php-dev-2.online/resources_logo/MySQL_3.png',0,3),(9,'PostgreSQL','',0,3),(10,'Javascript','http//php-dev-2.online/resources_logo/Javascript_4.png',0,4),(11,'HTML5','http//php-dev-2.online/resources_logo/HTML5_4.png',0,4),(12,'CSS','http//php-dev-2.online/resources_logo/CSS_4.png',0,4),(13,'PHP','http//php-dev-2.online/resources_logo/PHP_5.png',0,5),(14,'Javascript','http//php-dev-2.online/resources_logo/Javascript_5.png',0,5),(15,'Cloud Access Security Brokers','',0,6),(16,'JavaScript','http//php-dev-2.online/resources_logo/JavaScript_8.png',0,8),(17,'Bootstrap','',0,8),(18,'CSS','http//php-dev-2.online/resources_logo/CSS_8.png',0,8),(19,'Scilab','',0,9),(20,'Cake PHP','',0,9),(21,'JQuery','',0,9),(22,'Docker','http//php-dev-2.online/resources_logo/Docker_10.png',0,10),(23,'Metaverse','',0,10),(24,'Stackoverflow','',0,11),(25,'Github','',0,11),(26,'Oracle',NULL,0,7),(27,'Javascript','http//php-dev-2.online/resources_logo/Javascript_1.png',0,1);
+INSERT INTO `technology` VALUES (1,'HTML5','http://php-dev-2.online/resources_logo/HTML5_1.png',0,1),(2,'CSS','http://php-dev-2.online/resources_logo/CSS_1.png',0,1),(3,'SQL','',0,1),(4,'PHP','http://php-dev-2.online/resources_logo/PHP_1.png',0,1),(5,'React JS','',0,2),(6,'Angular','',0,2),(7,'Boostrap','http://php-dev-2.online/resources_logo/Boostrap_2.png',0,2),(8,'MySQL','http://php-dev-2.online/resources_logo/MySQL_3.png',0,3),(9,'PostgreSQL','',0,3),(10,'Javascript','http://php-dev-2.online/resources_logo/Javascript_4.png',0,4),(11,'HTML5','http://php-dev-2.online/resources_logo/HTML5_4.png',0,4),(12,'CSS','http://php-dev-2.online/resources_logo/CSS_4.png',0,4),(13,'PHP','http://php-dev-2.online/resources_logo/PHP_5.png',0,5),(14,'Javascript','http://php-dev-2.online/resources_logo/Javascript_5.png',0,5),(15,'Cloud Access Security Brokers','',0,6),(16,'JavaScript','http://php-dev-2.online/resources_logo/JavaScript_8.png',0,8),(17,'Bootstrap','',0,8),(18,'CSS','http://php-dev-2.online/resources_logo/CSS_8.png',0,8),(19,'Scilab','',0,9),(20,'Cake PHP','',0,9),(21,'JQuery','',0,9),(22,'Docker','http://php-dev-2.online/resources_logo/Docker_10.png',0,10),(23,'Metaverse','',0,10),(24,'Stackoverflow','',0,11),(25,'Github','',0,11),(26,'Oracle',NULL,0,7),(27,'Javascript','http://php-dev-2.online/resources_logo/Javascript_1.png',0,1),(31,'MySQL','http://php-dev-2.online/resources_logo/MySQL_5.png',0,5);
 /*!40000 ALTER TABLE `technology` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -128,4 +128,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-04 13:24:08
+-- Dump completed on 2023-10-04 14:12:34

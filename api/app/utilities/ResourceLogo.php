@@ -45,10 +45,10 @@
         }
 
         private function formDataTreatment($data){ 
-            $fileExt = $this->getExtension($data['logo']['type']); //get the extension file
+            $fileExt = $this->getExtension($data['type']); //get the extension file
             if($fileExt){
                 $temporaryFileFullPath = $this->getTmpFullPath($fileExt); //get full path of tmp file
-                $tmpName = $data['logo']['tmp_name'];
+                $tmpName = $data['tmp_name'];
                 $urlFileDir = $this->urlDir.$this->uploadDir;
                 if(move_uploaded_file($tmpName, $temporaryFileFullPath)){ //store the file temporarly with always the same name
                     $result = ["extension" => $fileExt, "url_path" => $urlFileDir, "tmp_name" => $temporaryFileFullPath];

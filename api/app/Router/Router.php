@@ -60,7 +60,7 @@
                     // check if put or post some logo for technology
                     if(($method === "POST" || $method === "PUT") && $controller == "TechnologyController"){
                         $this->logo = new ResourceLogo();
-                        $fullUrlDir = $_SERVER['REQUEST_SCHEME']."//".$_SERVER['HTTP_HOST'];
+                        $fullUrlDir = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'];
                         $this->logo->setUrlDir($fullUrlDir);
                         if (isset($_FILES['logo'])) { //check if contain some file
                             $dataTempLogo = $this->logo->logoDataTreatment($_FILES['logo']);
