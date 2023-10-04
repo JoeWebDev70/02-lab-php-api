@@ -7,7 +7,7 @@
 
         //constructor for db connection
         public function __construct($connection){
-            $this->setConnection($connection);
+            $this->connection = $connection;
         }
 
         //add
@@ -21,7 +21,7 @@
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
                 try{ //create
                     $sth->execute();
-                    return [true, 'Succès : Catégorie créée', 201];
+                    return [true, 'Catégorie créée', 201];
                 }catch(PDOException $e){
                     return [false, "Erreur : ".$e->getMessage(), 400];
                 }
@@ -32,14 +32,14 @@
                 $sth->bindParam(':id', $id, PDO::PARAM_STR);
                 try{ //update
                     $sth->execute();
-                    return [true, 'Succès : Catégorie créée', 201];
+                    return [true, 'Catégorie créée', 201];
                 }catch(PDOException $e){
-                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                    return [false, "Erreur dans l'execution de la requête", 400];
                 }
             }else if($result == "erreur execution"){ //some errore in check if exist
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //name exist and wasn't deleted 
-                return [false, 'Erreur : Catégorie déjà existante', 403];
+                return [false, 'Catégorie déjà existante', 403];
             }
         }
 
@@ -61,10 +61,10 @@
                 if($displayResult){  //exist some category then display result
                     return [true, $response, 200];
                 }else{ //no category exist
-                    return [false, "Erreur : Catégories inexistantes", 404];
+                    return [false, "Catégories inexistantes", 404];
                 }
             }catch(PDOException $e){  //some error in the sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }
         }
         
@@ -87,10 +87,10 @@
                 if($displayResult){ //some categories had technology
                     return [true, $response, 200];
                 }else{
-                    return [false, "Erreur : Aucune catégorie n'est associée à une technologie", 404];
+                    return [false, "Aucune catégorie n'est associée à une technologie", 404];
                 }
             }catch(PDOException $e){ //some error in SQL execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }
         }
 
@@ -101,12 +101,12 @@
                     $response = new Category($result);
                     return [true, $response, 200];
                 }else{  //exist but was deleted
-                    return [false, "Erreur : Catégorie inexistante", 404];
+                    return [false, "Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some error in chek if exist
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Catégorie inexistante", 404];
+                return [false, "Catégorie inexistante", 404];
             }
         }
 
@@ -120,17 +120,17 @@
                     if($response){ //category contain some technologies
                         return [true, $response[1], 200];
                     }else if($response == "erreur d'execution"){
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     }else{ //category doesn't contain technology
                         return [false, "La catégorie ".$result["id"] ." : ". $result["name"] ." ne contient pas de technologie", 404];
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Catégorie inexistante", 404];
+                    return [false, "Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Aucune catégorie existante", 404];
+                return [false, "Aucune catégorie existante", 404];
             }
         }
 
@@ -148,17 +148,17 @@
                     $sth->bindParam(':id', $id, PDO::PARAM_INT);
                     try{
                         $sth->execute();
-                        return [true, 'Succès : Catégorie modifiée', 200];
+                        return [true, 'Catégorie modifiée', 200];
                     }catch(PDOException $e){ //some error in sql execution
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Catégorie inexistante", 404];
+                    return [false, "Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur  dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Catégorie inexistante", 404];
+                return [false, "Catégorie inexistante", 404];
             }
         }
        
@@ -173,7 +173,7 @@
                     if($response){
                         return [false, $response[1], 403];
                     }else if($response == "erreur d'execution"){
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     }else{//doesn't contain technologies then update
                         $sql = "UPDATE category AS c SET c.deleted = 1 WHERE c.id = :id";
                         $sth = $this->connection->prepare($sql);
@@ -182,16 +182,16 @@
                             $sth->execute();
                             return [true, "Succès : Catégorie supprimée", 200];
                         }catch(PDOException $e){
-                            return [false, "Erreur : Dans l'execution de la requête", 400];
+                            return [false, "Erreur dans l'execution de la requête", 400];
                         }
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Catégorie inexistante", 404];
+                    return [false, "Catégorie inexistante", 404];
                 }
             }else if($result == "erreur execution"){ //some errore on check if category exist
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //doesn't exist
-                return [false, "Erreur : Catégorie inexistante", 404];
+                return [false, "Catégorie inexistante", 404];
             }
         }
 
@@ -242,9 +242,6 @@
             }
         }
 
-        public function setConnection($connection){ //db connection
-            $this->connection = $connection ;
-        }
     }
 
 ?>

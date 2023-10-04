@@ -8,6 +8,8 @@
 
     - Les technologies sont unique par catégorie;
 
+    - Les requêtes se font dans Params;
+
     - Les fichiers images = logos:
         - methode POST : sont a insérér dans Body -> form-data ou binary;
         - methode PUT : sont a insérér dans Body -> binary;
@@ -75,6 +77,229 @@
 
 ## Routes
 
+{
+    "plus d'informations": "https://github.com/JoeWebDev70/02-lab-php-api",
+    "Routes": [
+        {
+            "methode": "GET",
+            "url": "/",
+            "arguments": [],
+            "explication": "Voir toutes les routes disponibles"
+        },
+        {
+            "methode": "GET",
+            "url": "/categories",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir toutes les catégories, ordonnées par Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/categories/name",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir toutes les catégories, ordonnées par nom"
+        },
+        {
+            "methode": "GET",
+            "url": "/categories/technologies",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir toutes les catégories qui contiennent des technologies, ordonnées par Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/categories/name/technologies",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir toutes les catégories qui contiennent des technologies, ordonnées par nom"
+        },
+        {
+            "methode": "GET",
+            "url": "/category/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir une catégorie par son Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/category/{name}",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir une catégorie par son nom"
+        },
+        {
+            "methode": "GET",
+            "url": "/category/{id}/technologies",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir une catégorie par son Id si elle contient des technologies"
+        },
+        {
+            "methode": "GET",
+            "url": "/category/{name}/technologies",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir une catégorie par son nom si elle contient des technologies"
+        },
+        {
+            "methode": "GET",
+            "url": "/technologies",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir toutes les technologies, ordonnées par Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/technologies/name",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir toutes les technologies, ordonnées par nom"
+        },
+        {
+            "methode": "GET",
+            "url": "/technology/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir une technologie par son Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/technology/{name}",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Voir toutes les technologies du même nom"
+        },
+        {
+            "methode": "GET",
+            "url": "/resources",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir toutes les ressources, ordonnées par Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/resource/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir une ressource par son Id"
+        },
+        {
+            "methode": "GET",
+            "url": "/resource/technology/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Voir les ressources d'une technologie par son Id"
+        },
+        {
+            "methode": "POST",
+            "url": "/category",
+            "arguments": [
+                "?name=name"
+            ],
+            "explication": "Creer une nouvelle categorie"
+        },
+        {
+            "methode": "POST",
+            "url": "/technology",
+            "arguments": [
+                "?name=name&categoryId=id"
+            ],
+            "explication": "Creer une nouvelle technologie"
+        },
+        {
+            "methode": "POST",
+            "url": "/resource",
+            "arguments": [
+                "?technologyId=id&url=url"
+            ],
+            "explication": "Creer une nouvelle ressource pour une technologie"
+        },
+        {
+            "methode": "PUT",
+            "url": "/category/{id}",
+            "arguments": [
+                "id",
+                "?name=newName"
+            ],
+            "explication": "Mettre à jour une catégorie par son Id"
+        },
+        {
+            "methode": "PUT",
+            "url": "/category/{name}",
+            "arguments": [
+                "name",
+                "?name=newName"
+            ],
+            "explication": "Mettre à jour une catégorie par son nom"
+        },
+        {
+            "methode": "PUT",
+            "url": "/technology/{id}",
+            "arguments": [
+                "id",
+                "?name=newName"
+            ],
+            "explication": "Mettre à jour une technologie par son Id"
+        },
+        {
+            "methode": "PUT",
+            "url": "/resource/{id}",
+            "arguments": [
+                "id",
+                "?url=newUrl&technologyId=newTechnologyId"
+            ],
+            "explication": "Mettre à jour une ressource par son Id"
+        },
+        {
+            "methode": "DELETE",
+            "url": "/category/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Supprimer une catégorie par son Id"
+        },
+        {
+            "methode": "DELETE",
+            "url": "/category/{name}",
+            "arguments": [
+                "name"
+            ],
+            "explication": "Supprimer une catégorie par son nom"
+        },
+        {
+            "methode": "DELETE",
+            "url": "/technology/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Supprimer une technologie par son Id"
+        },
+        {
+            "methode": "DELETE",
+            "url": "/resource/{id}",
+            "arguments": [
+                "id"
+            ],
+            "explication": "Supprimer une ressource par son Id"
+        }
+    ]
+}
 
 
 

@@ -88,6 +88,7 @@
             $orderBy = strval($orderBy); //ensure is string
             if($orderBy != "id" && $orderBy != "name"){$orderBy = "id";} //check if $orderBy exist in column category
             $result = $this->technologyManager->getList($orderBy);
+
             if($result[0]){ //formating response
                 for($i = 0; $i < sizeof($result[1]); $i++){
                     $response[] = [
@@ -96,8 +97,10 @@
                         'logo' => $result[1][$i][0]->getLogo(),
                         'categoryId' => $result[1][$i][0]->getCategoryId(),
                         'categoryName' => $result[1][$i][1],
+                        'resources' => $result[1][$i][2],
                     ];
                 }
+
                 return ["Technologies" => $response, "http" => $result[2]];
             }else{
                 return ["message" => $result[1], "http" => $result[2]];
@@ -119,6 +122,7 @@
                         'logo' => $result[1][$i][0]->getLogo(),
                         'categoryId' => $result[1][$i][0]->getCategoryId(),
                         'categoryName' => $result[1][$i][1],
+                        'resources' => $result[1][$i][2],
                     ];
                 }
                 return ["Technologies" => $response, "http" => $result[2]];

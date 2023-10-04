@@ -2,15 +2,18 @@
 //manager = DAO - Data Access Object
     require_once './Entities/TechnologyModel.php';
     require_once './Managers/CategoryManager.php';
+    require_once './Managers/ResourceManager.php';
 
     class TechnologyManager {
         private $connection; //PDO instance
         private $category; //instance of category
+        private $resource; //instance of resource
 
         //constructor for db connection
         public function __construct($connection){
-            $this->setConnection($connection);
-            $this->category = new CategoryManager($connection);
+            $this->connection = $connection;
+            $this->category = new CategoryManager($this->connection);
+            $this->resource = new ResourceManager($this->connection);
         }
 
         //add
@@ -35,9 +38,9 @@
                     $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
                     try{ 
                         $sth->execute();
-                        return [true, 'Succès : Technologie créée', 201];
+                        return [true, 'Technologie créée', 201];
                     }catch(PDOException $e){ 
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     }
                 }else if ($response["deleted"] == 1){ // exist but it was deleted before then update
                     $id = $response["id"];
@@ -46,14 +49,14 @@
                     $sth->bindParam(':id', $id, PDO::PARAM_INT);
                     try{ 
                         $sth->execute();
-                        return [true, 'Succès : Technologie créée', 201];
+                        return [true, 'Technologie créée', 201];
                     }catch(PDOException $e){ 
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     }
                 }else if($result == "erreur execution"){ //some errore in check if exist
-                    return [false, "Erreur : Dans l'execution de la requête", 400];
+                    return [false, "Erreur dans l'execution de la requête", 400];
                 }else{ //exist in this category and wasn't deleted 
-                    return [false, 'Erreur : Technologie déjà existante avec cette Catégorie', 403];
+                    return [false, 'Technologie déjà existante avec cette Catégorie', 403];
                 } 
             }else{
                 return [$result[0], $result[1], $result[2]];
@@ -68,37 +71,40 @@
                     LEFT JOIN category AS c ON c.id = t.category_id ) 
                     WHERE t.deleted = 0 ORDER BY t." . $orderBy . " ASC";
             $sth = $this->connection->prepare($sql);
+            
             try{ 
                 $sth->execute();
                 while ($data = $sth->fetch(PDO::FETCH_ASSOC)){
                     if($data["logo"] == null){$logo = "";}else{$logo = $data["logo"];}
+                    $resources = $this->getResourcesOfTechnology($data["id"]);
                     $dataTechnology = ["id" => $data["id"], "name" => $data["name"], "logo" => $logo, "categoryId" => $data["category_id"]];
-                    $result[] = [new Technology($dataTechnology), $data["category_name"]]; 
+                    $result[] = [new Technology($dataTechnology), $data["category_name"], $resources]; 
                     $displayResult = true;
                 }; 
 
                 if($displayResult){ //there is something to display
                     return [true, $result, 200];
                 }else{
-                    return [false, "Erreur : Technologies inexistantes", 404];
+                    return [false, "Technologies inexistantes", 404];
                 }
             }catch(PDOException $e){ //some error in sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }
         }
 
         public function getBy($idOrName){ //display a technology by its Id
             $result = $this->technologyExist($idOrName); //check if technology exist
             if(!$result){ //doesn't exist
-                return [false, "Erreur : Technologie inexistante", 404];
+                return [false, "Technologie inexistante", 404];
             }else if($result == "erreur execution"){//some error in sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //exist
                 for($i = 0; $i < sizeof($result); $i ++){
                     if($result[$i]["deleted"] == 0){ //wasn't deleted
                         if($result[$i]["logo"] == null){$logo = "";}else{$logo = $result[$i]["logo"];}
+                        $resources = $this->getResourcesOfTechnology($result[$i]["id"]);
                         $dataTechnology = ["id" => $result[$i]["id"], "name" => $result[$i]["name"], "logo" => $logo, "categoryId" => $result[$i]["category_id"]];
-                        $response[] = [new Technology($dataTechnology), $result[$i]["category_name"]]; 
+                        $response[] = [new Technology($dataTechnology), $result[$i]["category_name"], $resources]; 
                     }
                 }
                 return [true, $response, 200];
@@ -117,9 +123,9 @@
             $technologyExist = $this->technologyExist($id); //check if technology exist
             
             if(!$technologyExist){ //technology doesn't exist
-                return [false, "Erreur : Technologie inexistante", 404];
+                return [false, "Technologie inexistante", 404];
             }else if($technologyExist == "erreur execution"){//some error in sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //technology exist
                 if($technologyExist[0]["deleted"] == 0){ //exist and wasn't deleted
                     $result = $this->category->getBy($categoryId); //check if category exist 
@@ -132,7 +138,7 @@
                         if(!$response){ //doesn't exist yet with this category then update in db
                             $update = true;
                         }else if($response == "erreur execution"){ //some errore in check if exist
-                            return [false, "Erreur : Dans l'execution de la requête", 400];
+                            return [false, "Erreur dans l'execution de la requête", 400];
                         }else{ //exist in this category and wasn't deleted 
                             if($id == $response["id"]){$update = true;} //if technology id is the same then update
                         } 
@@ -148,19 +154,19 @@
                             $sth->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
                             try{
                                 $sth->execute(); 
-                                return [true, 'Succès : Technologie modifiée', 200];
+                                return [true, 'Technologie modifiée', 200];
                             }catch(PDOException $e){ //some error in sql execution
-                                return [false, "Erreur : Dans l'execution de la requête", 400];
+                                return [false, "Erreur dans l'execution de la requête", 400];
                             } 
                         }else{
-                            return [false, 'Erreur : Technologie déjà existante avec cette Catégorie', 403];
+                            return [false, 'Technologie déjà existante avec cette Catégorie', 403];
                         }
 
                     }else{ //category doesn't exist or some error in SQL execution
                         return [$result[0], $result[1], $result[2]];
                     }
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Technologie inexistante", 404];
+                    return [false, "Technologie inexistante", 404];
                 }
             }
         }
@@ -169,9 +175,9 @@
         public function delete($id){
             $result = $this->technologyExist($id);
             if(!$result){ //technology doesn't exist
-                return [false, "Erreur : Technologie inexistante", 404];
+                return [false, "Technologie inexistante", 404];
             }else if($result == "erreur execution"){//some error in sql execution
-                return [false, "Erreur : Dans l'execution de la requête", 400];
+                return [false, "Erreur dans l'execution de la requête", 400];
             }else{ //technology exist
                 if($result[0]["deleted"] == 0){ //exist and wasn't deleted
                     $sql = "UPDATE technology SET deleted = 1 WHERE id = :id ";
@@ -179,12 +185,12 @@
                     $sth->bindParam(':id', $id, PDO::PARAM_INT);
                     try{
                         $sth->execute(); 
-                        return [true, 'Succès : Technologie supprimée', 200];
+                        return [true, 'Technologie supprimée', 200];
                     }catch(PDOException $e){ //some error in sql execution
-                        return [false, "Erreur : Dans l'execution de la requête", 400];
+                        return [false, "Erreur dans l'execution de la requête", 400];
                     } 
                 }else{ //exist but was deleted
-                    return [false, "Erreur : Technologie inexistante", 404];
+                    return [false, "Technologie inexistante", 404];
                 }
             }
         }
@@ -238,9 +244,23 @@
             }
         }
 
-        public function setConnection($connection){
-            $this->connection = $connection ;
+        //get ressources associated with technology
+        private function getResourcesOfTechnology($idTechnology){
+            $result = $this->resource->getListFor($idTechnology);
+            if($result[0]){ //formating response
+                for($i = 0; $i < sizeof($result[1]); $i++){
+                    $resources[] = [
+                        'id' => $result[1][$i][0]->getId(),  
+                        'url' => $result[1][$i][0]->getUrl(),
+                    ];
+                }
+                return $resources;
+            }else{
+                return "Pas de ressource associée";
+            }
+            
         }
+
     }
 
 ?>

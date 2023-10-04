@@ -20,6 +20,7 @@
     $route->addRoute('GET','/technology/{name}', ['technology','showTechnologyBy'], 'name:([a-zA-Z0-9À-ÿ \-_]+)', ['name'], "Voir toutes les technologies du même nom");
     $route->addRoute('GET','/resources', ['resource','showResources'], '', ['id'], "Voir toutes les ressources, ordonnées par Id");
     $route->addRoute('GET','/resource/{id}', ['resource','showResource'], 'id:(\d+)', ['id'], "Voir une ressource par son Id");
+    $route->addRoute('GET','/resource/technology/{id}', ['resource','showResourcesFor'], 'id:(\d+)', ['id'], "Voir les ressources d'une technologie par son Id");
     
     //POST
     $route->addRoute('POST','/category', ['category','addCategory'], '', ['?name=name'], "Creer une nouvelle categorie");

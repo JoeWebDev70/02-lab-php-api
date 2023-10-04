@@ -18,6 +18,8 @@
         public function __construct(){ //set connection and create an instance of resourcemanager
             $this->setConnection();
             $this->resourceManager = new ResourceManager($this->connection); 
+            $this->technology = new TechnologyManager($this->connection);
+
         }
 
         //add
@@ -41,16 +43,22 @@
 
             //create new instance of resource
             if($url != null && ($technologyId != null && $technologyId > 0)){ //if data are set
-                $resourceData = [
-                    'url' => $url,
-                    'technologyId' => $technologyId,
-                ];
-                                
-                $resource = new Resource($resourceData);
-                $result = $this->resourceManager->add($resource);
+                $technologyExist = $this->technology->getBy($technologyId);//check if technology exist
+                if($technologyExist[0]){ //technology exist and wasn't deleted - CF. public function getBy($idOrName) in TechnologyManager
+                
+                    $resourceData = [
+                        'url' => $url,
+                        'technologyId' => $technologyId,
+                    ];
+                                    
+                    $resource = new Resource($resourceData);
+                    $result = $this->resourceManager->add($resource);
 
-                return ["message" => $result[1], "http" => $result[2]];
-                    
+                    return ["message" => $result[1], "http" => $result[2]];
+                
+                }else{ //technology doesn't exist or some error in SQL execution
+                    return [$technologyExist[0], $technologyExist[1], $technologyExist[2]];
+                }
             }else{ //Miss url or technology id  
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
@@ -94,6 +102,35 @@
             }
         }
         
+        public function showResourcesFor($idTechnology){
+            if(is_numeric(htmlspecialchars(strip_tags($idTechnology)))){
+                $idTechnology = (int) htmlspecialchars(strip_tags($idTechnology));
+            }else{
+                return ["message" => "Erreur dans la requête", "http" => 400 ];
+            }
+            $technologyExist = $this->technology->getBy($idTechnology);//check if technology exist
+                if($technologyExist[0]){ //technology exist and wasn't deleted - CF. public function getBy($idOrName) in TechnologyManager
+                
+                    
+                    $result = $this->resourceManager->getListFor($idTechnology);
+
+                    if($result[0]){ //formating response
+                        for($i = 0; $i < sizeof($result[1]); $i++){
+                            $response[] = [
+                                'id' => $result[1][$i][0]->getId(),  
+                                'url' => $result[1][$i][0]->getUrl(),
+                            ];
+                        }
+                        return ["Ressources" => $response, "http" => $result[2]];
+                    }else{
+                        return ["message" => $result[1], "http" => $result[2]];
+                    }
+                
+                }else{ //technology doesn't exist or some error in SQL execution
+                    return [$technologyExist[0], $technologyExist[1], $technologyExist[2]];
+                }
+        }
+
         //update
         public function updateResource($arg, $data){
             if(is_numeric(htmlspecialchars(strip_tags($arg)))){
@@ -120,31 +157,37 @@
             $technologyId = $UrlAndTechnologyId[1];
 
             if($id != null){
-                $oldResource = $this->resourceManager->get($id);
-                if($oldResource[0]){ //formating response
-                    for($i = 0; $i < sizeof($oldResource[1]); $i++){
-                        $oldUrl = $oldResource[1][$i][0]->getUrl();
-                        $oldTechnology = $oldResource[1][$i][0]->getTechnologyId();
+                $technologyExist = $this->technology->getBy($technologyId);//check if technology exist
+                if($technologyExist[0]){ //technology exist and wasn't deleted - CF. public function getBy($idOrName) in TechnologyManager
+                
+                    $oldResource = $this->resourceManager->get($id);
+                    if($oldResource[0]){ //formating response
+                        for($i = 0; $i < sizeof($oldResource[1]); $i++){
+                            $oldUrl = $oldResource[1][$i][0]->getUrl();
+                            $oldTechnology = $oldResource[1][$i][0]->getTechnologyId();
+                        }
+                    
+                        if($url == ""){$url = $oldUrl;}       
+                        if($technologyId == ""){$technologyId = $oldTechnology;}
+                    
+                    }else{
+                        return ["message" => $oldResource[1], "http" => $oldResource[2]];
                     }
+
+                    $resourceData = [
+                        'id' => $id,
+                        'url' => $url,
+                        'technologyId' => $technologyId,
+                    ];
+
+                    $resource = new Resource($resourceData);
+                    $result = $this->resourceManager->update($id, $resource);
+
+                    return ["message" => $result[1], "http" => $result[2]];
                 
-                    if($url == ""){$url = $oldUrl;}       
-                    if($technologyId == ""){$technologyId = $oldTechnology;}
-                
-                }else{
-                    return ["message" => $oldResource[1], "http" => $oldResource[2]];
+                }else{ //technology doesn't exist or some error in SQL execution
+                    return [$technologyExist[0], $technologyExist[1], $technologyExist[2]];
                 }
-
-                $resourceData = [
-                    'id' => $id,
-                    'url' => $url,
-                    'technologyId' => $technologyId,
-                ];
-                var_dump($resourceData);
-                $resource = new Resource($resourceData);
-                $result = $this->resourceManager->update($id, $resource);
-
-                return ["message" => $result[1], "http" => $result[2]];
-                
                     
             }else{ //miss id  
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
