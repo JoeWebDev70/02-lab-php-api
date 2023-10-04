@@ -1,4 +1,6 @@
 <?php
+    
+    require_once './utilities/ResourceLogo.php';
 
     class Router{
         private $routes = [];
@@ -9,6 +11,8 @@
             'resource' => 'ResourceController',
         ];
 
+        private $logo;
+        
         //method
         public function addRoute($method, $pattern, $handler, $routeRegex, $arg = [], $routeExplanation = ""){
             $this->routes[] = [$method, $pattern, $handler, $routeRegex, $arg, $routeExplanation];
@@ -55,10 +59,13 @@
 
                     // check if put or post some logo for technology
                     if(($method === "POST" || $method === "PUT") && $controller == "TechnologyController"){
+                        $this->logo = new ResourceLogo();
+                        $fullUrlDir = $_SERVER['REQUEST_SCHEME']."//".$_SERVER['HTTP_HOST'];
+                        $this->logo->setUrlDir($fullUrlDir);
                         if (isset($_FILES['logo'])) { //check if contain some file
-                            $dataTempLogo = $this->gestionFile($_FILES['logo']);
+                            $dataTempLogo = $this->logo->logoDataTreatment($_FILES['logo']);
                         }else { //or data
-                            $dataTempLogo = $this->gestionFile(file_get_contents('php://input'));
+                            $dataTempLogo = $this->logo->logoDataTreatment(file_get_contents('php://input'));
                         }
                         //set in data array to send in functions
                         if($dataTempLogo){$data[] = ["logo" => $dataTempLogo];}
@@ -82,42 +89,6 @@
             return $listeRoutes;
         }
         
-        private function gestionFile($dataFile){ //logo file gestion
-            //create a temporary file for treating data after
-            $uploadDir = './resources_logo/'; 
-            $temporaryFileName = 'temporaryLogo';
-            $temporaryFilePath = $uploadDir.$temporaryFileName;
-            if(is_array($dataFile)){ //file get by $_FILE
-                //get the extension file
-                $fileTmpType =  $_FILES['logo']['type']; 
-                $extensionExplode = explode("+",$fileTmpType);
-                $fileTmpExt = explode("/",$extensionExplode[0]);
-                $fileExt = strtolower($fileTmpExt[1]);
-                $tmpName = $_FILES['logo']['tmp_name'];
-                //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
-                $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
-                if(move_uploaded_file($tmpName, $temporaryFileFullPath)){ //store the file temporarly with always the same name
-                    return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
-                }
-            }else{ // file get by binary
-                if($dataFile != ""){ //if contains data
-                    file_put_contents($temporaryFilePath, $dataFile); //store the file temporarly with always the same name
-                    //get the extension file
-                    $fileTmpType = mime_content_type($temporaryFilePath);
-                    $extensionExplode = explode("+",$fileTmpType);
-                    $fileTmpExt = explode("/",$extensionExplode[0]);
-                    $fileExt = strtolower($fileTmpExt[1]);
-                    //name and pass temporary file => ./resources_logo/temporaryLogo.[extension]
-                    $temporaryFileFullPath = $temporaryFilePath.".".$fileExt;
-                    if(rename($temporaryFilePath, $temporaryFileFullPath)){ //rename it with extension
-                        return ["extension" => $fileExt, "path" => $uploadDir ,"tmp_name" => $temporaryFileFullPath];
-                    }
-                }
-            }
-            return false;
-        }
-
-
     }
         
 

@@ -77,6 +77,7 @@
 
 ## Routes
 
+```
 {
     "plus d'informations": "https://github.com/JoeWebDev70/02-lab-php-api",
     "Routes": [
@@ -300,7 +301,7 @@
         }
     ]
 }
-
+```
 
 
 ## HHTP Codes Erreurs

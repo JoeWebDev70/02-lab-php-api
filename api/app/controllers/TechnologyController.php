@@ -4,6 +4,7 @@
     require_once './Database/Connection.php';
     require_once './Managers/TechnologyManager.php';
     require_once './Entities/TechnologyModel.php';
+    require_once './utilities/ResourceLogo.php';
 
 //!injection protection
 //strip_tags : delete HTML and PHP tag from string
@@ -25,6 +26,8 @@
         public function addTechnology($arg, $data){ 
             $name = null;
             $logo = "";
+            $fileFullPath = null;
+            $temporaryFileFullPath = null;
             $categoryId = null;
 
             $dataTechnology = strval($data[0]); //ensure is string
@@ -44,14 +47,11 @@
                 if($name != null && ($categoryId != null && $categoryId > 0)){
                     
                     if(isset($data[1]['logo'])){ //some logo is set
-                        $fileExt = $data[1]['logo']['extension'];
-                        $temporaryFileFullPath = $data[1]['logo']['tmp_name'];
-                        //check if its valid format
-                        if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'))) {
-                            $fileName = $name."_".$categoryId.".".$fileExt;
-                            $fileDir = $data[1]['logo']['path'];
-                            $fileFullPath = $fileDir.$fileName;
-                            $logo = $fileFullPath;
+                        $pathLogo = $this->setLogoPath($name, $categoryId, $data[1]['logo']);
+                        if($pathLogo){
+                            $temporaryFileFullPath = $pathLogo[0];
+                            $fileFullPath = $pathLogo[1];
+                            $logo = $pathLogo[2];
                         }
                     }
                     
@@ -66,19 +66,19 @@
                     $result = $this->technologyManager->add($technology);
                     
                     if($result[2] == 201){ //if result of SQL is OK then rename the temporary logo file
-                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){rename($temporaryFileFullPath, $fileFullPath);}
+                        if($temporaryFileFullPath != null){rename($temporaryFileFullPath, $fileFullPath);}
                     }else{ //delete it
-                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                        if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                     }
 
                     return ["message" => $result[1], "http" => $result[2]];
                         
                 }else{ //Miss name or category id  to create = delete temporary file and send error message
-                    if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                    if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{ //some error in technologie data send
-                if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
         }
@@ -141,6 +141,8 @@
             
             $name = "";
             $logo = "";
+            $fileFullPath = null;
+            $temporaryFileFullPath = null;
             $categoryId = "";
 
             $dataTechnology = strval($data[0]); //ensure is string
@@ -172,14 +174,11 @@
                         if($categoryId == ""){$categoryId = $oldCategory;}
                     
                         if(isset($data[1]['logo'])){ //some logo is set
-                            $newFileExt = $data[1]['logo']['extension'];
-                            $temporaryFileFullPath = $data[1]['logo']['tmp_name'];
-                            //check if its valid format
-                            if (in_array($newFileExt, array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'))) {
-                                $fileName = $name ."_".$categoryId.".".$newFileExt;
-                                $fileDir = $data[1]['logo']['path'];
-                                $fileFullPath = $fileDir.$fileName;
-                                $logo = $fileFullPath;
+                            $pathLogo = $this->setLogoPath($name, $categoryId, $data[1]['logo']);
+                            if($pathLogo){
+                                $temporaryFileFullPath = $pathLogo[0];
+                                $fileFullPath = $pathLogo[1];
+                                $logo = $pathLogo[2];
                             }
                         }
 
@@ -187,13 +186,12 @@
                             if($oldLogo == null){ //never set logo
                                 $logo = "";
                             }else{ //set before but need update name but not extension
-                                $oldLogoExplodeFullPath = explode("/", $oldLogo);
-                                $fileDir = "./".$oldLogoExplodeFullPath[1]."/";
-                                $oldLogoExplode = explode(".", $oldLogoExplodeFullPath[2]);
-                                $oldLogoExt = $oldLogoExplode[1];
-                                $fileName = $name ."_".$categoryId.".".$oldLogoExt;
-                                $fileFullPath = $fileDir.$fileName;
-                                $logo = $fileFullPath;
+                                $UpdatePathLogo = $this->updateLogoPath($name, $categoryId, $oldLogo);
+                                if($UpdatePathLogo){
+                                    $oldLogoInternPath = $UpdatePathLogo[0];
+                                    $newLogoInternPath = $UpdatePathLogo[1];
+                                    $logo = $UpdatePathLogo[2];
+                                }
                             }
                         }
 
@@ -213,24 +211,26 @@
                     $result = $this->technologyManager->update($id, $technology);
                     
                     if($result[2] == 200){ //if result of SQL is OK then rename the temporary logo file
-                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){ //new logo set
-                           if($oldLogo != ""){unlink($oldLogo);}
-                            rename($temporaryFileFullPath, $logo);
+                        if($temporaryFileFullPath != null){ //new logo set
+                            if($oldLogo != "" && isset($oldLogoInternPath)){unlink($oldLogoInternPath);}
+                            rename($temporaryFileFullPath,  $fileFullPath);
                         }else{ //rename old logo
-                            rename($oldLogo, $logo);
+                            if(isset($oldLogoInternPath)){
+                                rename($oldLogoInternPath, $newLogoInternPath);
+                            }
                         }
                     }else{ //delete the new logo set
-                        if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                        if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                     }
 
                     return ["message" => $result[1], "http" => $result[2]];
                 
                 }else{
-                    if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                    if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                     return ["message" => "Erreur dans la requête", "http" => 400 ];
                 }
             }else{
-                if(isset($data[1]['logo']) && isset($temporaryFileFullPath)){unlink($temporaryFileFullPath);}
+                if($temporaryFileFullPath != null){unlink($temporaryFileFullPath);}
                 return ["message" => "Erreur dans la requête", "http" => 400 ];
             }
         }
@@ -261,6 +261,39 @@
                 }
             }
             return [$name, $categoryId];
+        }
+
+        private function setLogoPath($name, $categoryId, $dataFile){
+            $fileExt = $dataFile['extension']; //check if its valid format
+            if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'))) {
+                $resourceLogo = new ResourceLogo();
+                $fileName = $name."_".$categoryId.".".$fileExt;
+                $temporaryFileFullPath = $dataFile['tmp_name'];
+                $fileInternDir = $resourceLogo->getInternDir();
+                $fileFullPath = $fileInternDir.$fileName;
+                $urlPath = $dataFile["url_path"];
+                $displayPath = $urlPath.$fileName;
+            }else{
+                return false;
+            }
+            return [$temporaryFileFullPath, $fileFullPath, $displayPath];
+        }
+
+        private function updateLogoPath($name, $categoryId, $dataFile){
+            // var_dump($dataFile);
+            $resourceLogo = new ResourceLogo();
+            $fileInternDir = $resourceLogo->getInternDir();
+            $fileUploadDir = $resourceLogo->getUploadDir();
+
+            $oldLogoExplodeFullPath = explode($fileUploadDir, $dataFile);
+            $oldLogoInternPath = $fileInternDir.$oldLogoExplodeFullPath[1];
+            $oldLogoExt = explode(".",$oldLogoExplodeFullPath[1]);
+            $fileName = $name ."_".$categoryId.".".$oldLogoExt[1];
+            
+            $newLogoInternPath = $fileInternDir.$fileName;
+            $displayPath = $oldLogoExplodeFullPath[0].$fileUploadDir.$fileName;
+            
+            return [$oldLogoInternPath, $newLogoInternPath, $displayPath];
         }
 
         public function setConnection(){ //set connection db
