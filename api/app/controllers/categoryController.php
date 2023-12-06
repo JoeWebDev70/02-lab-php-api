@@ -36,7 +36,7 @@
                 return ["message" => $result[1], "http" => $result[2]];
 
             }else{
-                return ["message" => "Erreur dans la requête", "http" => $result[2]];
+                return ["message" => "Erreur dans la requête", "http" => 400];
             }
         }
 

@@ -38,7 +38,7 @@
             //     Returns NULL on failure if FILTER_NULL_ON_FAILURE is set
             $deleted = (int) filter_var($deleted, FILTER_VALIDATE_BOOLEAN); 
             if($deleted == 0 || $deleted == 1){ 
-                $this->_deleted = $deleted;
+                $this->deleted = $deleted;
             }
         }
 

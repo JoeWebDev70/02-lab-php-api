@@ -13,6 +13,7 @@
         private $resourceManager;
         private $db;
         private $connection;
+        private $technology;
 
         // constructor
         public function __construct(){ //set connection and create an instance of resourcemanager

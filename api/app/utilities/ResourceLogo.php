@@ -19,7 +19,7 @@
 
         public function logoDataTreatment($data){ //logo file gestion
             //create a temporary file for treating data after
-            $result;
+            
             if(is_array($data)){ //file get by $_FILE
                 $result = $this->formDataTreatment($data);
             }else{ // file get by binary
